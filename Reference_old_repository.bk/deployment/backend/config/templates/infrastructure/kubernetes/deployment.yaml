@@ -1,9 +1,0 @@
-# Auto-generated kubernetes template for deployment.yaml
-
-apiVersion: v1
-kind: {{ resource_type }}
-metadata:
-  name: {{ name }}
-  namespace: {{ namespace }}
-spec:
-  # Template specifications will be populated here

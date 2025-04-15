@@ -1,0 +1,13 @@
+{
+  "timestamp": "2025-04-15T22:50:23.578090",
+  "prompt": "how are you?",
+  "response_length": 174,
+  "metrics": {
+    "model": "llama"
+  },
+  "analysis": {
+    "prompt_complexity": 3,
+    "response_complexity": 34,
+    "contains_code": false
+  }
+}

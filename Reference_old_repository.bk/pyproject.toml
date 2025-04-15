@@ -1,8 +1,0 @@
-[tool.pytest]
-pythonpath = "."
-testpaths = ["tests"]
-python_files = ["test_*.py"]
-addopts = "-v --cov=core"
-
-[tool.coverage.run]
-source = ["core"]

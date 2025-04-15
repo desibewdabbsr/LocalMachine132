@@ -9,8 +9,8 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 
 # Import memory manager and code generator
 try:
-    from core.ai_integration.memory_manager import MemoryManager
-    from core.ai_integration.code_generator import CodeGenerator
+    from python_components.core.ai_integration.llama.memory_manager import MemoryManager
+    from core.ai_integration.cody.code_generator import CodeGenerator
     memory_imports_successful = True
 except ImportError as e:
     print(f"Warning: Could not import memory manager or code generator: {e}")
@@ -42,7 +42,7 @@ class AIController:
         # Define standard paths
         self.brain_path = Path(os.environ.get('BRAIN_PATH', 'llama_brain'))
         self.repositories_path = Path('.Repositories')
-        self.repositories_path.mkdir(parents=True, exist_ok=True)
+        # self.repositories_path.mkdir(parents=True, exist_ok=True)
         
         # Initialize memory manager
         if memory_imports_successful:

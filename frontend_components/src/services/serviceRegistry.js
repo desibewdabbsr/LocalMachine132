@@ -3,7 +3,6 @@ import ChatPanel from '../components/chat/ChatPanel';
 import Terminal from '../components/terminal/Terminal';
 import CodeEditor from '../components/editor/CodeEditor';
 import FileBrowser from '../components/files/FileBrowser';
-import ProcessPanel from '../components/process/ProcessPanel';
 
 /**
  * Service Registry
@@ -41,13 +40,7 @@ const serviceRegistry = {
       component: FileBrowser,
       allowMultiple: false
     },
-    'process': {
-      id: 'process',
-      title: 'Process',
-      icon: '🔮', // Crystal ball icon from the old repository
-      component: ProcessPanel,
-      allowMultiple: false
-    },
+
     metrics: {
       id: 'metrics',
       title: 'Metrics',

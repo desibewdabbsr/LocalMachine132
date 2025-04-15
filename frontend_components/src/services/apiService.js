@@ -53,11 +53,11 @@ class ApiService {
         console.error('Socket error:', error);
       });
       
-      // Listen for process updates and broadcast them as custom events
-      this.socket.on('process_update', (update) => {
-        console.log('Process update received:', update);
-        document.dispatchEvent(new CustomEvent('process-update', { detail: update }));
-      });
+      // // Listen for process updates and broadcast them as custom events
+      // this.socket.on('process_update', (update) => {
+      //   console.log('Process update received:', update);
+      //   document.dispatchEvent(new CustomEvent('process-update', { detail: update }));
+      // });
     } else if (typeof io === 'undefined') {
       console.error('Socket.io client not available. Make sure it is included in your HTML.');
     }
@@ -146,13 +146,13 @@ class ApiService {
     try {
       console.log(`Generating code with model: ${model}`);
       
-      // Dispatch a process update event
-      document.dispatchEvent(new CustomEvent('process-update', {
-        detail: {
-          type: 'process',
-          message: `Starting code generation with ${model}: ${prompt.substring(0, 50)}...`
-        }
-      }));
+      // // Dispatch a process update event
+      // document.dispatchEvent(new CustomEvent('process-update', {
+      //   detail: {
+      //     type: 'process',
+      //     message: `Starting code generation with ${model}: ${prompt.substring(0, 50)}...`
+      //   }
+      // }));
       
       // Add a timeout to the fetch request
       const controller = new AbortController();
@@ -175,25 +175,25 @@ class ApiService {
       
       const data = await response.json();
       
-      // Dispatch a process update event for completion
-      document.dispatchEvent(new CustomEvent('process-update', {
-        detail: {
-          type: 'process',
-          message: 'Code generation completed'
-        }
-      }));
+      // // Dispatch a process update event for completion
+      // document.dispatchEvent(new CustomEvent('process-update', {
+      //   detail: {
+      //     type: 'process',
+      //     message: 'Code generation completed'
+      //   }
+      // }));
       
       return data;
     } catch (error) {
       console.error(`Error generating code with ${model}:`, error);
       
-      // Dispatch an error event
-      document.dispatchEvent(new CustomEvent('process-update', {
-        detail: {
-          type: 'error',
-          message: `Error generating code: ${error.message}`
-        }
-      }));
+      // // Dispatch an error event
+      // document.dispatchEvent(new CustomEvent('process-update', {
+      //   detail: {
+      //     type: 'error',
+      //     message: `Error generating code: ${error.message}`
+      //   }
+      // }));
       
       // Check if it's a network error
       if (error.name === 'AbortError') {
