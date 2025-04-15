@@ -1,0 +1,13 @@
+{
+  "timestamp": "2025-04-10T21:50:20.813925",
+  "prompt": "Generate code for: Please create a hello world in pytho using flask .",
+  "response_length": 1896,
+  "metrics": {
+    "model": "deepseek"
+  },
+  "analysis": {
+    "prompt_complexity": 13,
+    "response_complexity": 327,
+    "contains_code": true
+  }
+}

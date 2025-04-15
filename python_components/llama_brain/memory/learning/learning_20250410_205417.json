@@ -1,0 +1,13 @@
+{
+  "timestamp": "2025-04-10T20:54:17.989051",
+  "prompt": "please create sol contract 0.8.0",
+  "response_length": 1663,
+  "metrics": {
+    "model": "cohere"
+  },
+  "analysis": {
+    "prompt_complexity": 5,
+    "response_complexity": 246,
+    "contains_code": true
+  }
+}

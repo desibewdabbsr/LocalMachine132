@@ -1,0 +1,86 @@
+{
+  "devDependencies": {
+    "@jest/globals": "^29.7.0",
+    "@storybook/addon-essentials": "^8.5.1",
+    "@storybook/react-vite": "^8.5.1",
+    "@testing-library/jest-dom": "^6.6.3",
+    "@testing-library/react": "^16.2.0",
+    "@types/assert": "^1.5.11",
+    "@types/fs-extra": "^11.0.4",
+    "@types/glob": "^8.1.0",
+    "@types/jest": "^29.5.14",
+    "@types/node": "^18.19.70",
+    "@types/react": "^19.0.8",
+    "@types/react-dom": "^19.0.3",
+    "@types/vscode": "^1.96.0",
+    "@vitejs/plugin-react": "^4.3.4",
+    "@vscode/test-electron": "^2.4.1",
+    "canvas": "^2.11.2",
+    "css-loader": "^7.1.2",
+    "fs-extra": "^11.2.0",
+    "identity-obj-proxy": "^3.0.0",
+    "jest": "^29.7.0",
+    "jest-canvas-mock": "^2.5.2",
+    "jest-environment-jsdom": "^29.7.0",
+    "jest-transform-css": "^6.0.2",
+    "style-loader": "^4.0.0",
+    "ts-jest": "^29.2.5",
+    "ts-loader": "^9.5.2",
+    "typescript": "^5.7.2",
+    "vite": "^6.0.11",
+    "webpack": "^5.97.1",
+    "webpack-cli": "^6.0.1",
+    "webpack-dev-server": "^5.2.0"
+  },
+  "scripts": {
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "test:mockes": "jest tests/mockes/*.test.ts --verbose",
+    "test:setup": "jest tests/setup/*.test.ts --verbose",
+    "test:logger": "jest --testMatch \"**/tests/suite/logger/**/*.test.ts\" --verbose",
+    "test:all": "jest \"**/tests/**/*.test.{ts,tsx}\" --verbose",
+    "test:suite": "jest --testMatch \"**/tests/suite/**/*.test.{ts,tsx}\"",
+    "start:webview": "webpack serve --config webpack.webview.config.js",
+    "storybook": "storybook dev -p 6006",
+    "build-storybook": "storybook build",
+    "test-storybook": "test-storybook"
+  },
+  "jest": {
+    "preset": "ts-jest",
+    "testEnvironment": "jsdom",
+    "cacheDirectory": "/mnt/development/pop-dev-assistant/vscode-extension/.jest-cache",
+    "moduleFileExtensions": [
+      "ts",
+      "tsx",
+      "js",
+      "jsx"
+    ],
+    "testMatch": [
+      "**/tests/**/*.test.{ts,tsx}"
+    ],
+    "roots": [
+      "<rootDir>/tests"
+    ],
+    "setupFiles": [
+      "jest-canvas-mock"
+    ],
+    "moduleNameMapper": {
+      "^vscode$": "<rootDir>/tests/mockes/vscode.mock",
+      "\\.(css|less|scss|sass)$": "identity-obj-proxy"
+    },
+    "transform": {
+      "^.+\\.tsx?$": "ts-jest",
+      "^.+\\.css$": "jest-transform-css"
+    },
+    "setupFilesAfterEnv": [
+      "<rootDir>/tests/setup/jest.setup.ts"
+    ]
+  },
+  "dependencies": {
+    "ethers": "^5.7.2",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "solc": "^0.8.28"
+  }
+}

@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Development Assistant</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="holographic_panel.css">
+    <link rel="stylesheet" href="holographic_panel_override.css">
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+    <!-- Core components -->
+    <script src="chat_refresh.js"></script>
+    <script src="chat_history.js"></script>
+    <script src="chat.js"></script>
+    <script src="code_integration.js"></script>
+
+    
+    <!-- Holographic panel components - order matters! -->
+    <script src="holographic_refresh.js"></script>
+    <script src="holographic_history.js"></script>
+    <script src="holographic_terminal_core.js"></script>
+    <script src="holographic_terminal_commands.js"></script>
+    <script src="holographic_terminal.js"></script>
+    <script src="holographic_file_viewer.js"></script>
+    <script src="holographic_panel.js"></script>
+    <script src="settings.js"></script>
+
+
+    <!-- Layout and main app -->
+    <script src="layout.js"></script>
+    <script src="main.js"></script>
+
+    <!-- Test script Enable to test holographic components -->
+
+    <!-- <script src="test_holographic.js"></script> -->
+    <!-- <script src="test_holographic_panel.js"></script>
+    <script src="test_holographic_refresh.js"></script> -->
+    
+
+</head>
+
+<body>
+    <div id="app-container"></div>
+</body>
+</html>

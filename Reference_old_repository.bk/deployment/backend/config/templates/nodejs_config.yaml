@@ -1,0 +1,9 @@
+nodejs:
+  version_manager: "volta"
+  default_version: "18.20.5"
+  npm_version: "10.9.2"
+  use_volta: true
+  toolchain:
+    formatter: "prettier"
+    linter: "eslint"
+    test_runner: "jest"

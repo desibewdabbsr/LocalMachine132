@@ -1,0 +1,12 @@
+[
+  {
+    "timestamp": "2025-03-31T11:20:02.505Z",
+    "correlationId": "1743420002376-jmh1rhxdg",
+    "metrics": {
+      "startTime": 1743420002495,
+      "endTime": 1743420002499,
+      "duration": 4,
+      "success": true
+    }
+  }
+]

@@ -1,0 +1,13 @@
+{
+  "timestamp": "2025-04-10T22:05:37.323624",
+  "prompt": "Generate code for: Please create a simple solidity contract.",
+  "response_length": 2313,
+  "metrics": {
+    "model": "deepseek"
+  },
+  "analysis": {
+    "prompt_complexity": 9,
+    "response_complexity": 375,
+    "contains_code": true
+  }
+}

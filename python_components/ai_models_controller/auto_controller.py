@@ -19,11 +19,19 @@ class AutoController:
         
         # Define model specialties for intelligent routing
         self.specialties = {
-            'cody': ['code', 'programming', 'development', 'software', 'api', 'function', 'class', 'algorithm'],
-            'mistral': ['general', 'knowledge', 'explanation', 'concept', 'idea', 'theory'],
-            'deepseek': ['research', 'analysis', 'data', 'science', 'technical', 'complex'],
-            'cohere': ['creative', 'writing', 'content', 'summary', 'article', 'blog'],
-            'llama': ['conversation', 'chat', 'dialogue', 'response']
+            'llama': [  # This is actually Mistral
+                'general', 'knowledge', 'explanation', 'concept', 'idea', 'theory',
+                'programming', 'development', 'software', 'api', 'function', 'class', 'algorithm'
+            ],
+            'deepseek': [
+                'code', 'research', 'analysis', 'data', 'science', 'technical', 'complex',
+                'programming', 'development', 'software', 'api', 'function', 'class', 'algorithm'
+            ],
+            'cohere': [
+                'creative', 'writing', 'content', 'summary', 'article', 'blog',
+                'current', 'news', 'recent', 'latest', 'update', '2022', '2023', '2024',
+                'defi', 'blockchain', 'crypto', 'web3'
+            ]
         }
     
     async def process_command(self, message: str) -> str:
@@ -31,6 +39,27 @@ class AutoController:
         model = self._select_model(message)
         self.logger.info(f"Auto mode selected {model} for processing")
         
+        # Special handling for current information requests
+        needs_current_info = self._needs_current_info(message)
+        if needs_current_info and model == 'llama' and 'cohere' in self.controllers:
+            # First get current information from Cohere
+            self.logger.info("Getting current information from Cohere first")
+            cohere_controller = self.controllers.get('cohere')
+            current_info_prompt = f"Provide the most recent and up-to-date information about: {message}"
+            current_info = await cohere_controller.process_command(current_info_prompt)
+            
+            # Then use Mistral (llama) with the enhanced context
+            enhanced_prompt = f"""
+            Here is some current information to help answer this question:
+            {current_info}
+            
+            Now, please answer the original question: {message}
+            """
+            controller = self.controllers.get(model)
+            response = await controller.process_command(enhanced_prompt)
+            return f"Response from {model.upper()} model (with current information from COHERE):\n\n{response}"
+        
+        # Standard processing for other requests
         controller = self.controllers.get(model)
         if not controller:
             self.logger.error(f"Selected model {model} not available")
@@ -51,6 +80,29 @@ class AutoController:
         model = self._select_model(message)
         self.logger.info(f"Auto mode selected {model} for processing")
         
+        # Special handling for current information requests
+        needs_current_info = self._needs_current_info(message)
+        if needs_current_info and model == 'llama' and 'cohere' in self.controllers:
+            # First get current information from Cohere
+            self.logger.info("Getting current information from Cohere first")
+            cohere_controller = self.controllers.get('cohere')
+            current_info_prompt = f"Provide the most recent and up-to-date information about: {message}"
+            current_info_response = await cohere_controller.process_message(current_info_prompt)
+            current_info = current_info_response.get("content", "")
+            
+            # Then use Mistral (llama) with the enhanced context
+            enhanced_prompt = f"""
+            Here is some current information to help answer this question:
+            {current_info}
+            
+            Now, please answer the original question: {message}
+            """
+            controller = self.controllers.get(model)
+            response = await controller.process_message(enhanced_prompt)
+            content = response.get("content", "")
+            return {"content": content, "model": model, "enhanced": True}
+        
+        # Standard processing for other requests
         controller = self.controllers.get(model)
         if not controller:
             self.logger.error(f"Selected model {model} not available")
@@ -66,6 +118,18 @@ class AutoController:
         content = response.get("content", "")
         return {"content": content, "model": model}
     
+    def _needs_current_info(self, message: str) -> bool:
+        """Determine if a message requires current information beyond Mistral's knowledge cutoff"""
+        message_lower = message.lower()
+        current_info_keywords = [
+            'current', 'recent', 'latest', 'new', 'today', 'this year',
+            '2022', '2023', '2024', 'last month', 'this month',
+            'defi', 'web3', 'crypto', 'blockchain', 'nft',
+            'latest technology', 'new framework', 'recent developments'
+        ]
+        
+        return any(keyword in message_lower for keyword in current_info_keywords)
+    
     def _select_model(self, message: str) -> str:
         """
         Select the most appropriate model based on message content
@@ -76,16 +140,22 @@ class AutoController:
         message_lower = message.lower()
         
         # Check for explicit model requests
-        if "use cody" in message_lower or "ask cody" in message_lower:
-            return "cody"
-        if "use mistral" in message_lower or "ask mistral" in message_lower:
-            return "mistral"
+        if "use llama" in message_lower or "ask llama" in message_lower or "use mistral" in message_lower or "ask mistral" in message_lower:
+            return "llama"  # This is actually Mistral
         if "use deepseek" in message_lower or "ask deepseek" in message_lower:
             return "deepseek"
         if "use cohere" in message_lower or "ask cohere" in message_lower:
             return "cohere"
-        if "use llama" in message_lower or "ask llama" in message_lower:
-            return "llama"
+        
+        # For code generation, prefer DeepSeek
+        if any(code_keyword in message_lower for code_keyword in ['code', 'function', 'class', 'program', 'script', 'develop']):
+            if "deepseek" in self.controllers:
+                return "deepseek"
+        
+        # For current information, use Cohere
+        if self._needs_current_info(message):
+            if "cohere" in self.controllers:
+                return "cohere"
         
         # Calculate scores for each model based on keyword matches
         scores = {model: 0 for model in self.controllers.keys()}
@@ -106,11 +176,9 @@ class AutoController:
         if self.last_model and self.last_model in self.controllers:
             return self.last_model
         
-        # Default to cody for code-related tasks, or mistral for general queries
-        if "cody" in self.controllers:
-            return "cody"
-        elif "mistral" in self.controllers:
-            return "mistral"
+        # Default to llama (Mistral) for general queries
+        if "llama" in self.controllers:
+            return "llama"
         
         # Fallback to any available model
         return next(iter(self.controllers.keys()))

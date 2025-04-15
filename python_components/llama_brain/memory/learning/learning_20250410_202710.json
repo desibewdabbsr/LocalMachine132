@@ -1,0 +1,13 @@
+{
+  "timestamp": "2025-04-10T20:27:10.281741",
+  "prompt": "ask cohere to get the info about the same.",
+  "response_length": 1261,
+  "metrics": {
+    "model": "cohere"
+  },
+  "analysis": {
+    "prompt_complexity": 9,
+    "response_complexity": 188,
+    "contains_code": false
+  }
+}

@@ -1,11 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
 import './ProcessPanel.css';
+import apiService from '../../services/apiService';
 
 /**
  * Process Panel Component
  * 
  * Shows logs of AI operations and code generation
- * Simplified to focus only on the process view
+ * Now connected to real-time updates via socket.io
  */
 const ProcessPanel = () => {
   const [logs, setLogs] = useState([]);
@@ -13,21 +14,132 @@ const ProcessPanel = () => {
   const [files, setFiles] = useState({});
   const logsEndRef = useRef(null);
 
-  // Simulate initial logs for demonstration
+  // Initialize with system connection message
   useEffect(() => {
     const initialLogs = [
-      { type: 'system', message: 'Connected to AI system', timestamp: new Date() },
-      { type: 'process', message: 'Ready for code generation', timestamp: new Date() }
+      { type: 'system', message: 'Connected to AI system', timestamp: new Date().toLocaleTimeString() },
+      { type: 'process', message: 'Ready for code generation', timestamp: new Date().toLocaleTimeString() }
     ];
     setLogs(initialLogs);
-  }, []);
-
-  // Auto-scroll to bottom when logs update
-  useEffect(() => {
-    if (logsEndRef.current) {
-      logsEndRef.current.scrollIntoView({ behavior: 'smooth' });
+    
+    // Initialize socket connection for real-time updates
+    const socket = apiService.initSocket();
+    
+    // Listen for process updates via custom events
+    const handleProcessUpdate = (event) => {
+      const update = event.detail;
+      console.log('ProcessPanel received update:', update);
+      
+      // Add timestamp if not present
+      const updatedUpdate = {
+        ...update,
+        timestamp: update.timestamp || new Date().toLocaleTimeString()
+      };
+      
+      addLog(updatedUpdate.type, updatedUpdate.message, updatedUpdate.path);
+      
+      // If this is a process start update, set the active process
+      if (updatedUpdate.type === 'process' && updatedUpdate.message.includes('Starting')) {
+        setActiveProcess(updatedUpdate.message);
+      }
+      
+      // If this is a process completion update, clear the active process
+      if (updatedUpdate.type === 'process' && updatedUpdate.message.includes('completed')) {
+        setActiveProcess(null);
+      }
+      
+      // If this is a file update, store the file content
+      if (updatedUpdate.type === 'file' || updatedUpdate.type === 'code') {
+        if (updatedUpdate.path) {
+          setFiles(prev => ({
+            ...prev,
+            [updatedUpdate.path]: updatedUpdate.message
+          }));
+        }
+      }
+    };
+    
+    // Listen for socket connection events
+    const handleSocketConnected = () => {
+      addLog('system', 'Socket connected to server', null);
+    };
+    
+    const handleSocketDisconnected = () => {
+      addLog('system', 'Socket disconnected from server', null);
+    };
+    
+    // Add event listeners
+    document.addEventListener('process-update', handleProcessUpdate);
+    document.addEventListener('socket-connected', handleSocketConnected);
+    document.addEventListener('socket-disconnected', handleSocketDisconnected);
+    
+    // Also listen directly to the socket for process_update events
+    if (socket) {
+      socket.on('process_update', (update) => {
+        console.log('Direct socket process update:', update);
+        // Add timestamp if not present
+        const updatedUpdate = {
+          ...update,
+          timestamp: update.timestamp || new Date().toLocaleTimeString()
+        };
+        
+        addLog(updatedUpdate.type, updatedUpdate.message, updatedUpdate.path);
+        
+        // If this is a process start update, set the active process
+        if (updatedUpdate.type === 'process' && updatedUpdate.message.includes('Starting')) {
+          setActiveProcess(updatedUpdate.message);
+        }
+        
+        // If this is a process completion update, clear the active process
+        if (updatedUpdate.type === 'process' && updatedUpdate.message.includes('completed')) {
+          setActiveProcess(null);
+        }
+        
+        // If this is a file update, store the file content
+        if (updatedUpdate.type === 'file' || updatedUpdate.type === 'code') {
+          if (updatedUpdate.path) {
+            setFiles(prev => ({
+              ...prev,
+              [updatedUpdate.path]: updatedUpdate.message
+            }));
+          }
+        }
+      });
+      
+      // Handle connection events directly from socket
+      socket.on('connect', () => {
+        console.log('Socket connected directly');
+        addLog('system', 'Socket connected to server', null);
+      });
+      
+      socket.on('disconnect', () => {
+        console.log('Socket disconnected directly');
+        addLog('system', 'Socket disconnected from server', null);
+      });
+      
+      socket.on('error', (error) => {
+        console.error('Socket error:', error);
+        addLog('error', `Socket error: ${error}`, null);
+      });
+    } else {
+      // If socket initialization failed, log it
+      addLog('error', 'Failed to initialize socket connection. Real-time updates not available.', null);
     }
-  }, [logs]);
+    
+    // Clean up event listeners on unmount
+    return () => {
+      document.removeEventListener('process-update', handleProcessUpdate);
+      document.removeEventListener('socket-connected', handleSocketConnected);
+      document.removeEventListener('socket-disconnected', handleSocketDisconnected);
+      
+      if (socket) {
+        socket.off('process_update');
+        socket.off('connect');
+        socket.off('disconnect');
+        socket.off('error');
+      }
+    };
+  }, []);
 
   // Add a log entry
   const addLog = (type, message, path = null) => {
@@ -45,166 +157,88 @@ const ProcessPanel = () => {
       }
     }
     
-    setLogs(prev => [...prev, {
+    const newLog = {
       type,
       message,
       path,
-      timestamp: new Date()
-    }]);
+      timestamp: new Date().toLocaleTimeString()
+    };
     
-    // If this is a code entry, update the file content
-    if (type === 'code' && path) {
-      setFiles(prev => ({
-        ...prev,
-        [path]: message
-      }));
+    setLogs(prevLogs => [...prevLogs, newLog]);
+  };
+
+  // Auto-scroll to bottom when new logs are added
+  useEffect(() => {
+    if (logsEndRef.current) {
+      logsEndRef.current.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, [logs]);
+
+  // Get icon for log type
+  const getLogIcon = (type) => {
+    switch (type) {
+      case 'system':
+        return '🔧';
+      case 'process':
+        return '⚙️';
+      case 'file':
+        return '📄';
+      case 'code':
+        return '💻';
+      case 'error':
+        return '❌';
+      default:
+        return '📝';
     }
   };
 
-  // View a specific file
-  const viewFile = (path) => {
-    // In a real implementation, this would open the file in the editor
-    console.log('Opening file:', path);
+  // Handle file click
+  const handleFileClick = (path) => {
+    // Open file in editor or show file content
+    console.log('File clicked:', path);
     
-    // Dispatch an event to open the file in the editor
-    const event = new CustomEvent('openFile', {
-      detail: {
-        targetWorkspace: 'workspace2', // Open in workspace2 (top right)
-        file: {
-          id: `file-${path}`,
-          serviceId: 'file-editor',
-          title: path.split('/').pop(),
-          data: {
-            fileId: `file-${path}`,
-            fileName: path.split('/').pop(),
-            language: path.endsWith('.sol') ? 'solidity' : 'javascript',
-            content: files[path] || '// No content available'
-          }
-        }
-      }
-    });
-    document.dispatchEvent(event);
-  };
-
-  // Render a log entry
-  const renderLogEntry = (log, index) => {
-    return (
-      <div key={index} className={`log-entry ${log.type}-log`}>
-        <span className="log-timestamp">
-          {log.timestamp.toLocaleTimeString()}
-        </span>
-        
-        <span className="log-icon">
-          {log.type === 'system' ? '🔧' : 
-           log.type === 'process' ? '⚙️' : 
-           log.type === 'file' ? '📄' : 
-           log.type === 'code' ? '💻' : '📌'}
-        </span>
-        
-        <span className="log-message">
-          {log.type === 'code' ? (
-            <>
-              <button 
-                className="view-code-btn"
-                onClick={() => viewFile(log.path)}
-              >
-                View
-              </button>
-              <strong>{log.path}</strong>: Code updated
-            </>
-          ) : (
-            log.message
-          )}
-        </span>
-      </div>
-    );
-  };
-
-  // Simulate code generation process
-  const simulateCodeGeneration = () => {
-    setActiveProcess('Code Generation');
-    
-    // Add initial logs
-    addLog('process', 'Starting code generation for: Please create a solidity contract in 0.8.0 ...');
-    addLog('process', 'Generating code...');
-    
-    // Simulate delay for code generation
-    setTimeout(() => {
-      addLog('process', 'Code generated, processing files...');
-      
-      // Simulate file creation
-      const solCode = `// SPDX-License-Identifier: MIT
-pragma solidity ^0.8.0;
-
-contract SimpleStorage {
-    uint256 private value;
-    
-    event ValueChanged(uint256 newValue);
-    
-    function setValue(uint256 _value) public {
-        value = _value;
-        emit ValueChanged(_value);
+    // This would typically open the file in an editor component
+    // For now, just show an alert with the file content
+    if (files[path]) {
+      // In a real application, you would dispatch an action to open the file in an editor
+      alert(`File content for ${path}:\n\n${files[path].substring(0, 200)}...`);
+    } else {
+      alert(`File ${path} not found in memory. It may need to be loaded from the server.`);
     }
-    
-    function getValue() public view returns (uint256) {
-        return value;
-    }
-}`;
-      
-      const filePath = 'projects/generated/SimpleStorage.sol';
-      
-      // Add file logs - only add one file creation log
-      addLog('file', `Added file: ${filePath}`, filePath);
-      
-      // Add code log with View button at the beginning
-      addLog('code', solCode, filePath);
-      
-      // Complete the process
-      addLog('process', 'Code generation completed');
-      setActiveProcess(null);
-    }, 2000);
   };
 
   return (
     <div className="process-panel">
-      {/* Header */}
       <div className="process-header">
-        <div className="process-title">
-          <span className="title-glow">AI</span> Process Monitor
-        </div>
-      </div>
-      
-      {/* Content area - only process logs */}
-      <div className="process-content">
-        <div className="process-logs">
-          {logs.map((log, index) => renderLogEntry(log, index))}
-          <div ref={logsEndRef} />
-          
-          {/* Demo button for testing */}
-          <div className="demo-controls">
-            <button 
-              className="generate-btn"
-              onClick={simulateCodeGeneration}
-              disabled={activeProcess !== null}
-            >
-              Simulate Code Generation
-            </button>
+        <h2>Process Monitor</h2>
+        {activeProcess && (
+          <div className="active-process">
+            <div className="spinner"></div>
+            <span>{activeProcess}</span>
           </div>
-        </div>
+        )}
       </div>
       
-      {/* Footer with status */}
-      <div className="process-footer">
-        <div className="status">
-          <span className={`status-indicator ${activeProcess ? 'active' : ''}`}></span>
-          <span className="status-text">
-            {activeProcess || 'Idle'}
-          </span>
-        </div>
-        
-        <div className="file-count">
-          Files: {Object.keys(files).length}
-        </div>
+      <div className="process-logs">
+        {logs.map((log, index) => (
+          <div key={index} className={`log-entry ${log.type}`}>
+            <span className="log-timestamp">{log.timestamp}</span>
+            <span className="log-icon">{getLogIcon(log.type)}</span>
+            <span className="log-message">
+              {log.path ? (
+                <span 
+                  className="file-link" 
+                  onClick={() => handleFileClick(log.path)}
+                >
+                  {log.message}
+                </span>
+              ) : (
+                log.message
+              )}
+            </span>
+          </div>
+        ))}
+        <div ref={logsEndRef} />
       </div>
     </div>
   );

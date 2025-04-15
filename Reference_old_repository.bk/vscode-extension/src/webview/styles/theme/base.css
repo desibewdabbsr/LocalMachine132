@@ -1,0 +1,43 @@
+@import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=VT323&display=swap');
+/* @import url('path-to-digital-7-font');
+@import url('path-to-dseg7-classic-font'); */
+
+:root {
+    /* Colors */
+    --color-primary: #036635;
+    --color-operational: #00FF00;
+    --color-warning: #FFD700;
+    --color-critical: #FF0000;
+    --color-background: #0A0A0A;
+    --color-accent: #00F0FF;
+
+    /* Typography */
+    --font-command: 'Share Tech Mono', monospace;
+    --font-metrics: 'VT323', monospace;
+    /* Update these if using different fonts */
+    --font-digital: monospace;  
+    --font-led: monospace;
+
+    /* Spacing */
+    --spacing-unit: 8px;
+    --spacing-grid: 16px;
+}
+
+.themeRoot {
+    background-color: var(--color-background);
+    color: var(--color-primary);
+}
+
+body {
+    background-color: var(--color-background);
+    color: var(--color-primary);
+    font-family: var(--font-command);
+    margin: 0;
+    padding: 0;
+}
+
+
+/* Export classes that can be imported */
+:export {
+    themeRoot: themeRoot;
+}

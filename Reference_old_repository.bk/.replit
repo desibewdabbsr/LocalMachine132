@@ -1,0 +1,107 @@
+modules = ["python-3.12", "nix"]
+run = "streamlit run undefined"
+
+[nix]
+channel = "stable-24_05"
+
+[deployment]
+run = ["sh", "-c", "streamlit run undefined"]
+
+[[ports]]
+localPort = 3000
+externalPort = 80
+
+[[ports]]
+localPort = 3001
+externalPort = 3001
+
+[[ports]]
+localPort = 3002
+externalPort = 4200
+
+[[ports]]
+localPort = 5000
+externalPort = 5173
+
+[[ports]]
+localPort = 8001
+externalPort = 3002
+
+[[ports]]
+localPort = 8002
+externalPort = 3003
+
+[[ports]]
+localPort = 8080
+externalPort = 8080
+
+[[ports]]
+localPort = 8501
+externalPort = 5000
+
+[[ports]]
+localPort = 8502
+externalPort = 6000
+
+[[ports]]
+localPort = 8503
+externalPort = 6800
+
+[[ports]]
+localPort = 8545
+externalPort = 3000
+
+[[ports]]
+localPort = 8765
+externalPort = 8000
+
+[[ports]]
+localPort = 8766
+externalPort = 8008
+
+[[ports]]
+localPort = 8767
+externalPort = 8081
+
+[[ports]]
+localPort = 8768
+externalPort = 8099
+
+[[ports]]
+localPort = 8769
+externalPort = 9000
+
+[[ports]]
+localPort = 11434
+externalPort = 11434
+exposeLocalhost = true
+
+[workflows]
+runButton = "Run Web App"
+
+[[workflows.workflow]]
+name = "Run"
+author = 40256736
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "PYTHONPATH=$PYTHONPATH:. python3 src/main.py"
+
+[[workflows.workflow]]
+name = "Run Dev Assistant"
+author = 40256736
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "PYTHONPATH=$PYTHONPATH:. python src/run.py"
+
+[[workflows.workflow]]
+name = "Run Web App"
+author = 40256736
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "PYTHONPATH=$PYTHONPATH:. python src/run.py"

@@ -1,0 +1,7 @@
+ai:
+  cody:
+    endpoint: "https://sourcegraph.com/.api/graphql"
+    mode: "production"
+    timeout: 30
+    metrics_enabled: true
+    auth_type: "token"

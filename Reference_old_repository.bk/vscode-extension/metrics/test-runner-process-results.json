@@ -1,0 +1,32 @@
+[
+  {
+    "timestamp": "2024-12-07T13:04:56.456Z",
+    "correlationId": "1733576696442-z131cxxtw",
+    "metrics": {
+      "startTime": 1733576696456,
+      "endTime": 1733576696456,
+      "duration": 0,
+      "success": true
+    }
+  },
+  {
+    "timestamp": "2024-12-07T13:04:56.479Z",
+    "correlationId": "1733576696442-z131cxxtw",
+    "metrics": {
+      "startTime": 1733576696479,
+      "endTime": 1733576696479,
+      "duration": 0,
+      "success": true
+    }
+  },
+  {
+    "timestamp": "2024-12-07T13:04:56.490Z",
+    "correlationId": "1733576696442-z131cxxtw",
+    "metrics": {
+      "startTime": 1733576696490,
+      "endTime": 1733576696490,
+      "duration": 0,
+      "success": true
+    }
+  }
+]

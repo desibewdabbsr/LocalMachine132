@@ -1,0 +1,473 @@
+/* Holographic Panel Styles */
+
+/* Main container */
+.holographic-container {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.2);
+    border: 1px solid var(--primary-color);
+    border-radius: 4px;
+    overflow: hidden;
+    position: relative;
+}
+
+/* Header */
+.holographic-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    background-color: rgba(0, 0, 0, 0.3);
+    border-bottom: 1px solid var(--primary-color);
+}
+
+.holographic-title {
+    font-size: 18px;
+    color: var(--primary-color);
+}
+
+.holographic-title .glow {
+    color: var(--border-color);
+    text-shadow: 0 0 5px var(--border-color), 0 0 10px var(--border-color);
+}
+
+/* View selector */
+.view-selector {
+    display: flex;
+    gap: 5px;
+}
+
+.view-btn {
+    background-color: rgba(0, 0, 0, 0.2);
+    border: 1px solid var(--primary-color);
+    color: var(--primary-color);
+    padding: 5px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    transition: all 0.3s;
+}
+
+.view-btn:hover {
+    background-color: rgba(0, 112, 74, 0.2);
+}
+
+.view-btn.active {
+    background-color: rgba(0, 112, 74, 0.4);
+    color: var(--border-color);
+    box-shadow: 0 0 5px rgba(0, 255, 140, 0.5);
+}
+
+.view-btn .icon {
+    font-size: 14px;
+}
+
+/* Content area */
+.holographic-content {
+    flex-grow: 1;
+    overflow: hidden;
+    position: relative;
+}
+
+.view-content {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: none;
+    overflow: auto;
+}
+
+.view-content.active {
+    display: block;
+}
+
+/* Process view */
+.process-logs {
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.log-entry {
+    padding: 8px;
+    background-color: rgba(0, 0, 0, 0.2);
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border-left: 3px solid var(--primary-color);
+}
+
+.log-timestamp {
+    color: rgba(0, 255, 140, 0.7);
+    font-size: 0.8em;
+    min-width: 70px;
+}
+
+.log-icon {
+    font-size: 16px;
+    width: 20px;
+    text-align: center;
+}
+
+.log-message {
+    flex-grow: 1;
+    color: var(--primary-color);
+}
+
+.system-log {
+    border-left-color: #00aaff;
+}
+
+.process-log {
+    border-left-color: #ffaa00;
+}
+
+.file-log {
+    border-left-color: #00ff8c;
+}
+
+.code-log {
+    border-left-color: #ff00aa;
+}
+
+.view-code-btn {
+    background-color: rgba(0, 112, 74, 0.3);
+    border: 1px solid var(--primary-color);
+    color: var(--primary-color);
+    padding: 2px 8px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+    transition: all 0.3s;
+}
+
+.view-code-btn:hover {
+    background-color: rgba(0, 112, 74, 0.5);
+    box-shadow: 0 0 5px rgba(0, 255, 140, 0.5);
+}
+
+/* File view */
+.file-sidebar {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 200px;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.3);
+    border-right: 1px solid var(--primary-color);
+    overflow-y: auto;
+}
+
+.file-list {
+    padding: 10px;
+}
+
+.directory-item {
+    margin-bottom: 10px;
+}
+
+.directory-header {
+    padding: 5px;
+    background-color: rgba(0, 112, 74, 0.2);
+    border-radius: 4px;
+    cursor: pointer;
+    margin-bottom: 5px;
+    color: var(--primary-color);
+}
+
+.directory-header:hover {
+    background-color: rgba(0, 112, 74, 0.3);
+}
+
+.file-items {
+    margin-left: 15px;
+}
+
+.file-item {
+    padding: 5px;
+    cursor: pointer;
+    border-radius: 4px;
+    margin-bottom: 2px;
+    color: var(--primary-color);
+}
+
+.file-item:hover {
+    background-color: rgba(0, 112, 74, 0.2);
+}
+
+.file-item.active {
+    background-color: rgba(0, 112, 74, 0.4);
+    color: var(--border-color);
+}
+
+.empty-message {
+    color: #666;
+    font-style: italic;
+    padding: 10px;
+}
+
+.file-content-area {
+    position: absolute;
+    left: 200px;
+    top: 0;
+    width: calc(100% - 200px);
+    height: 100%;
+    padding: 10px;
+    overflow: auto;
+}
+
+.file-header {
+    padding: 5px 10px;
+    background-color: rgba(0, 112, 74, 0.2);
+    border-radius: 4px;
+    margin-bottom: 10px;
+    color: var(--primary-color);
+    font-weight: bold;
+}
+
+.code-display {
+    background-color: rgba(0, 0, 0, 0.3);
+    padding: 10px;
+    border-radius: 4px;
+    border: 1px solid var(--primary-color);
+    color: var(--primary-color);
+    font-family: monospace;
+    white-space: pre-wrap;
+    overflow-x: auto;
+}
+
+.no-file-message {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    color: #666;
+    font-style: italic;
+    text-align: center;
+}
+
+.no-file-message .icon {
+    font-size: 48px;
+    margin-bottom: 20px;
+    opacity: 0.5;
+}
+
+/* Terminal view */
+.terminal-display {
+    background-color: rgba(0, 0, 0, 0.5);
+    color: var(--primary-color);
+    font-family: monospace;
+    padding: 10px;
+    height: 100%;
+    overflow-y: auto;
+}
+
+.terminal-line {
+    margin-bottom: 5px;
+    white-space: pre-wrap;
+}
+
+/* Footer */
+.holographic-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 5px 10px;
+    background-color: rgba(0, 0, 0, 0.3);
+    border-top: 1px solid var(--primary-color);
+}
+
+.status {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.status-indicator {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background-color: #666;
+}
+
+.status-indicator.active {
+    background-color: #00ff8c;
+    box-shadow: 0 0 5px #00ff8c;
+}
+
+.file-count {
+    color: var(--primary-color);
+    font-size: 0.9em;
+}
+
+/* Holographic effects */
+.holographic-container::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(45deg, rgba(0, 255, 140, 0.05) 0%, transparent 100%);
+    pointer-events: none;
+}
+
+/* Animation for status indicator */
+@keyframes pulse {
+    0% { box-shadow: 0 0 5px #00ff8c; }
+    50% { box-shadow: 0 0 10px #00ff8c; }
+    100% { box-shadow: 0 0 5px #00ff8c; }
+}
+
+.status-indicator.active {
+    animation: pulse 2s infinite;
+}
+
+
+
+/* Add these styles to the end of holographic_panel.css */
+
+/* Fix for process view scrolling */
+.process-logs {
+    scrollbar-width: thin;
+    scrollbar-color: transparent transparent;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+.process-logs:hover {
+    scrollbar-color: var(--primary-color) transparent;
+}
+
+.process-logs::-webkit-scrollbar {
+    width: 6px;
+}
+
+.process-logs::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.process-logs::-webkit-scrollbar-thumb {
+    background-color: transparent;
+    border-radius: 6px;
+}
+
+.process-logs:hover::-webkit-scrollbar-thumb {
+    background-color: var(--primary-color);
+}
+
+/* Fix for file view scrolling */
+.file-sidebar, .file-content-area {
+    scrollbar-width: thin;
+    scrollbar-color: transparent transparent;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+.file-sidebar:hover, .file-content-area:hover {
+    scrollbar-color: var(--primary-color) transparent;
+}
+
+.file-sidebar::-webkit-scrollbar, .file-content-area::-webkit-scrollbar {
+    width: 6px;
+}
+
+.file-sidebar::-webkit-scrollbar-track, .file-content-area::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.file-sidebar::-webkit-scrollbar-thumb, .file-content-area::-webkit-scrollbar-thumb {
+    background-color: transparent;
+    border-radius: 6px;
+}
+
+.file-sidebar:hover::-webkit-scrollbar-thumb, .file-content-area:hover::-webkit-scrollbar-thumb {
+    background-color: var(--primary-color);
+}
+
+/* Fix for terminal scrolling */
+.terminal-display {
+    scrollbar-width: thin;
+    scrollbar-color: transparent transparent;
+    overflow-y: auto;
+    overflow-x: hidden;
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+
+.terminal-display:hover {
+    scrollbar-color: var(--primary-color) transparent;
+}
+
+.terminal-display::-webkit-scrollbar {
+    width: 6px;
+}
+
+.terminal-display::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.terminal-display::-webkit-scrollbar-thumb {
+    background-color: transparent;
+    border-radius: 6px;
+}
+
+.terminal-display:hover::-webkit-scrollbar-thumb {
+    background-color: var(--primary-color);
+}
+
+/* Fix for code display to prevent horizontal scrolling */
+.code-display {
+    white-space: pre-wrap;
+    word-break: break-word;
+    overflow-wrap: break-word;
+    max-width: 100%;
+    overflow-x: auto;
+}
+
+/* Settings styles */
+.settings-container {
+    padding: 20px;
+    height: 100%;
+    overflow-y: auto;
+}
+
+.settings-header {
+    margin-bottom: 20px;
+    border-bottom: 1px solid var(--primary-color);
+    padding-bottom: 10px;
+}
+
+.settings-section {
+    margin-bottom: 30px;
+    background-color: rgba(0, 0, 0, 0.1);
+    padding: 15px;
+    border-radius: 4px;
+    border: 1px solid var(--primary-color);
+}
+
+.settings-button {
+    background-color: var(--primary-color);
+    color: var(--background-color);
+    border: none;
+    padding: 10px 15px;
+    margin: 5px 10px 5px 0;
+    border-radius: 4px;
+    cursor: pointer;
+    font-family: 'VT323', monospace;
+    font-size: 16px;
+    transition: all 0.3s;
+}
+
+.settings-button:hover {
+    background-color: #009966;
+    box-shadow: 0 0 5px #00ff8c;
+}

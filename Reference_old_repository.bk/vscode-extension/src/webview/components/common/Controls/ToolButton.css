@@ -1,0 +1,25 @@
+.tool-button {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 24px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    color: var(--vscode-button-foreground);
+}
+
+.tool-button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.tool-icon {
+    font-size: 18px;
+}
+
+.tool-label {
+    font-size: 14px;
+    font-weight: 500;
+}

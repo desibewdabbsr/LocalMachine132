@@ -25,15 +25,14 @@ const ChatPanel = () => {
   const [responses, setResponses] = useState([]);
   const [showModelSwitch, setShowModelSwitch] = useState(false);
   const [currentModelName, setCurrentModelName] = useState('auto');
+  const [connectionStatus, setConnectionStatus] = useState('connecting');
   const textareaRef = useRef(null);
   const responsesEndRef = useRef(null);
 
-  // Models available for selection
+  // Models available for selection - updated to match backend
   const models = [
     { id: 'A', name: 'Auto', apiName: 'auto' },
-    { id: 'C', name: 'Cody', apiName: 'cody' },
-    { id: 'G', name: 'ChatGPT', apiName: 'gpt' },
-    { id: 'M', name: 'Mistral', apiName: 'mistral' },
+    { id: 'M', name: 'Mistral', apiName: 'llama' },
     { id: 'D', name: 'Deepseek', apiName: 'deepseek' },
     { id: 'H', name: 'Cohere', apiName: 'cohere' }
   ];
@@ -56,18 +55,6 @@ const ChatPanel = () => {
         textareaRef.current.style.height = `${scrollHeight}px`;
         textareaRef.current.style.overflowY = 'hidden';
       }
-      
-      // Ensure parent containers don't scroll
-      const chatPanel = textareaRef.current.closest('.chat-panel');
-      if (chatPanel) {
-        chatPanel.style.overflowY = 'visible';
-      }
-      
-      // Ensure workspace doesn't scroll
-      const workspace = document.querySelector('.workspace-content');
-      if (workspace) {
-        workspace.style.overflowY = 'hidden';
-      }
     }
   }, [message]);
 
@@ -78,9 +65,34 @@ const ChatPanel = () => {
     }
   }, [responses]);
 
-  // Initialize socket connection
+  // Initialize socket connection and check server health
   useEffect(() => {
+    // Initialize socket
     apiService.initSocket();
+    
+    // Check server health
+    const checkHealth = async () => {
+      try {
+        const response = await fetch('http://localhost:5000/api/health');
+        if (response.ok) {
+          const data = await response.json();
+          setConnectionStatus('connected');
+          console.log('Server health:', data);
+        } else {
+          setConnectionStatus('error');
+        }
+      } catch (error) {
+        console.error('Health check failed:', error);
+        setConnectionStatus('error');
+      }
+    };
+    
+    checkHealth();
+    
+    // Check health every 30 seconds
+    const interval = setInterval(checkHealth, 30000);
+    
+    return () => clearInterval(interval);
   }, []);
 
   // Handle message change
@@ -128,8 +140,8 @@ const ChatPanel = () => {
     return model ? model.apiName : 'auto';
   };
 
-  // Handle send/process/stop
-  const handleSendOrStop = async () => {
+
+    const handleSendOrStop = async () => {
     if (isProcessing) {
       // Stop processing - would need to implement cancellation logic
       setIsProcessing(false);
@@ -147,21 +159,53 @@ const ChatPanel = () => {
       setResponses(prev => [...prev, userMessage]);
       
       try {
+        let response;
+        
         // Get the API model name
         const modelName = getApiModelName();
         
-        // Process the message with the selected model
-        const response = await apiService.processMessage(message, modelName);
+        if (isAutoPilot) {
+          // In Auto-Pilot mode, treat the message as a code generation request
+          // or as a command to the Auto-Pilot system
+          if (message.toLowerCase().includes('next module') || 
+              message.toLowerCase().includes('continue') ||
+              message.toLowerCase().includes('next step')) {
+            // Process next module command
+            response = await apiService.processNextModule();
+          } else if (message.toLowerCase().includes('status') ||
+                    message.toLowerCase().includes('progress')) {
+            // Get status command
+            response = await apiService.getAutoPilotStatus();
+          } else {
+            // Treat as code generation request
+            response = await apiService.generateCode(message, modelName);
+          }
+        } else {
+          // Normal mode - process message with the selected model
+          response = await apiService.processMessage(message, modelName);
+        }
         
         // Add AI response to responses
         const aiResponse = {
           type: 'ai',
-          content: response.response || response.error || 'No response received',
-          model: modelName,
+          content: response.content || response.response || response.error || 'No response received',
+          model: response.model || modelName,
           timestamp: new Date().toISOString()
         };
         
         setResponses(prev => [...prev, aiResponse]);
+        
+        // If we received code, also add it as a separate message
+        if (response.code) {
+          const codeResponse = {
+            type: 'ai',
+            content: `\`\`\`\n${response.code}\n\`\`\``,
+            model: response.model || modelName,
+            timestamp: new Date().toISOString()
+          };
+          
+          setResponses(prev => [...prev, codeResponse]);
+        }
       } catch (error) {
         console.error('Error processing message:', error);
         
@@ -183,6 +227,13 @@ const ChatPanel = () => {
 
   return (
     <div className="chat-container">
+      {/* Connection status indicator */}
+      <div className={`connection-status ${connectionStatus}`}>
+        {connectionStatus === 'connected' ? 'Connected to AI Server' : 
+         connectionStatus === 'connecting' ? 'Connecting to AI Server...' : 
+         'Connection Error - Server Unavailable'}
+      </div>
+      
       {/* Chat messages area */}
       <div className="chat-messages">
         {responses.map((response, index) => (
@@ -241,6 +292,7 @@ const ChatPanel = () => {
           </button>
         </div>
         
+        {/* Chat input area */}
         {/* Chat input area */}
         <textarea
           ref={textareaRef}

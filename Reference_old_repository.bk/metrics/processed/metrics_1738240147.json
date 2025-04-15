@@ -1,0 +1,1 @@
+{"timestamp": 1738240147.484402, "cpu": {"usage": 45.5, "temperature": 65}, "memory": {"used": 8000000000, "total": 16000000000}, "disk": {"used": 100000000000, "total": 500000000000}, "network": {"bytes_sent": 1000000, "bytes_recv": 2000000}}

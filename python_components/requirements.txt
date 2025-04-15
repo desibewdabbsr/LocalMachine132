@@ -84,7 +84,9 @@ tzdata==2025.1
 urllib3==2.2.1
 watchdog==6.0.0
 GPUtil
-
+flask-cors
+eventlet
+"flask[async]"
 
 
 

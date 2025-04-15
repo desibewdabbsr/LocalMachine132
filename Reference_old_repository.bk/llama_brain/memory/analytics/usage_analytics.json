@@ -1,0 +1,505 @@
+{
+  "interactions": [
+    {
+      "timestamp": "2025-02-06T20:23:47.439972",
+      "type": "interaction"
+    },
+    {
+      "timestamp": "2025-02-06T20:23:47.476364",
+      "type": "interaction"
+    },
+    {
+      "timestamp": "2025-02-06T20:25:36.705563",
+      "type": "interaction"
+    },
+    {
+      "timestamp": "2025-02-06T20:26:07.173036",
+      "type": "interaction"
+    },
+    {
+      "timestamp": "2025-02-06T20:37:06.884502",
+      "type": "interaction"
+    },
+    {
+      "timestamp": "2025-02-06T20:37:28.764906",
+      "type": "interaction"
+    },
+    {
+      "timestamp": "2025-02-06T20:37:28.869170",
+      "type": "interaction"
+    },
+    {
+      "timestamp": "2025-02-06T21:13:38.976565",
+      "type": "interaction"
+    },
+    {
+      "timestamp": "2025-02-06T21:13:48.384783",
+      "type": "interaction"
+    },
+    {
+      "timestamp": "2025-02-07T10:00:46.996544",
+      "type": "interaction"
+    },
+    {
+      "timestamp": "2025-02-07T10:01:00.375325",
+      "type": "interaction"
+    },
+    {
+      "timestamp": "2025-02-07T16:42:17.680365",
+      "type": "interaction"
+    },
+    {
+      "timestamp": "2025-02-07T16:42:17.709831",
+      "type": "interaction"
+    },
+    {
+      "timestamp": "2025-02-07T16:42:17.736438",
+      "type": "interaction"
+    },
+    {
+      "timestamp": "2025-02-07T16:42:17.770341",
+      "type": "interaction"
+    },
+    {
+      "timestamp": "2025-02-07T16:42:17.828040",
+      "type": "interaction"
+    },
+    {
+      "timestamp": "2025-02-07T16:42:17.829110",
+      "type": "interaction"
+    },
+    {
+      "timestamp": "2025-02-07T16:42:17.831946",
+      "type": "interaction"
+    },
+    {
+      "timestamp": "2025-02-07T16:42:17.835168",
+      "type": "interaction"
+    },
+    {
+      "timestamp": "2025-02-07T16:42:17.837198",
+      "type": "interaction"
+    },
+    {
+      "timestamp": "2025-02-07T16:48:19.665721",
+      "type": "interaction"
+    },
+    {
+      "timestamp": "2025-02-07T16:48:19.707198",
+      "type": "interaction"
+    },
+    {
+      "timestamp": "2025-02-07T16:48:19.752328",
+      "type": "interaction"
+    },
+    {
+      "timestamp": "2025-02-07T16:48:19.798830",
+      "type": "interaction"
+    },
+    {
+      "timestamp": "2025-02-07T16:48:19.884242",
+      "type": "interaction"
+    },
+    {
+      "timestamp": "2025-02-07T16:48:19.885311",
+      "type": "interaction"
+    },
+    {
+      "timestamp": "2025-02-07T16:48:19.886837",
+      "type": "interaction"
+    },
+    {
+      "timestamp": "2025-02-07T16:48:19.887934",
+      "type": "interaction"
+    },
+    {
+      "timestamp": "2025-02-07T16:48:19.890662",
+      "type": "interaction"
+    },
+    {
+      "timestamp": "2025-02-07T17:16:12.028728",
+      "type": "interaction"
+    },
+    {
+      "timestamp": "2025-02-07T17:16:12.072027",
+      "type": "interaction"
+    },
+    {
+      "timestamp": "2025-02-07T17:16:12.111019",
+      "type": "interaction"
+    },
+    {
+      "timestamp": "2025-02-07T17:16:12.156085",
+      "type": "interaction"
+    },
+    {
+      "timestamp": "2025-02-07T17:16:12.237365",
+      "type": "interaction"
+    },
+    {
+      "timestamp": "2025-02-07T17:16:12.238499",
+      "type": "interaction"
+    },
+    {
+      "timestamp": "2025-02-07T17:16:12.239978",
+      "type": "interaction"
+    },
+    {
+      "timestamp": "2025-02-07T17:16:12.241093",
+      "type": "interaction"
+    },
+    {
+      "timestamp": "2025-02-07T17:16:12.242172",
+      "type": "interaction"
+    },
+    {
+      "timestamp": "2025-02-07T17:16:26.707577",
+      "type": "interaction"
+    },
+    {
+      "timestamp": "2025-02-07T17:16:26.750618",
+      "type": "interaction"
+    },
+    {
+      "timestamp": "2025-02-07T17:16:26.790282",
+      "type": "interaction"
+    },
+    {
+      "timestamp": "2025-02-07T17:16:26.829784",
+      "type": "interaction"
+    },
+    {
+      "timestamp": "2025-02-07T17:16:26.915537",
+      "type": "interaction"
+    },
+    {
+      "timestamp": "2025-02-07T17:16:26.916878",
+      "type": "interaction"
+    },
+    {
+      "timestamp": "2025-02-07T17:16:26.919632",
+      "type": "interaction"
+    },
+    {
+      "timestamp": "2025-02-07T17:16:26.921846",
+      "type": "interaction"
+    },
+    {
+      "timestamp": "2025-02-07T17:16:26.922959",
+      "type": "interaction"
+    },
+    {
+      "timestamp": "2025-02-07T17:16:51.998823",
+      "type": "interaction"
+    },
+    {
+      "timestamp": "2025-02-07T17:16:52.060761",
+      "type": "interaction"
+    },
+    {
+      "timestamp": "2025-02-07T17:16:52.152445",
+      "type": "interaction"
+    },
+    {
+      "timestamp": "2025-02-07T17:16:52.207988",
+      "type": "interaction"
+    },
+    {
+      "timestamp": "2025-02-07T17:16:52.300469",
+      "type": "interaction"
+    },
+    {
+      "timestamp": "2025-02-07T17:16:52.301679",
+      "type": "interaction"
+    },
+    {
+      "timestamp": "2025-02-07T17:16:52.303190",
+      "type": "interaction"
+    },
+    {
+      "timestamp": "2025-02-07T17:16:52.304552",
+      "type": "interaction"
+    },
+    {
+      "timestamp": "2025-02-07T17:16:52.305733",
+      "type": "interaction"
+    },
+    {
+      "timestamp": "2025-02-08T10:59:05.232543",
+      "type": "interaction"
+    },
+    {
+      "timestamp": "2025-02-08T10:59:05.316232",
+      "type": "interaction"
+    },
+    {
+      "timestamp": "2025-02-08T10:59:05.401766",
+      "type": "interaction"
+    },
+    {
+      "timestamp": "2025-02-08T10:59:05.479632",
+      "type": "interaction"
+    },
+    {
+      "timestamp": "2025-02-08T10:59:05.652785",
+      "type": "interaction"
+    },
+    {
+      "timestamp": "2025-02-08T10:59:05.654471",
+      "type": "interaction"
+    },
+    {
+      "timestamp": "2025-02-08T10:59:05.655679",
+      "type": "interaction"
+    },
+    {
+      "timestamp": "2025-02-08T10:59:05.656778",
+      "type": "interaction"
+    },
+    {
+      "timestamp": "2025-02-08T10:59:05.658400",
+      "type": "interaction"
+    },
+    {
+      "timestamp": "2025-02-08T11:00:35.909196",
+      "type": "interaction"
+    },
+    {
+      "timestamp": "2025-02-08T11:00:35.989350",
+      "type": "interaction"
+    },
+    {
+      "timestamp": "2025-02-08T11:00:36.067736",
+      "type": "interaction"
+    },
+    {
+      "timestamp": "2025-02-08T11:00:36.150436",
+      "type": "interaction"
+    },
+    {
+      "timestamp": "2025-02-08T11:00:36.331694",
+      "type": "interaction"
+    },
+    {
+      "timestamp": "2025-02-08T11:00:36.332808",
+      "type": "interaction"
+    },
+    {
+      "timestamp": "2025-02-08T11:00:36.333935",
+      "type": "interaction"
+    },
+    {
+      "timestamp": "2025-02-08T11:00:36.335062",
+      "type": "interaction"
+    },
+    {
+      "timestamp": "2025-02-08T11:00:36.336393",
+      "type": "interaction"
+    },
+    {
+      "timestamp": "2025-03-25T21:31:46.775691",
+      "type": "interaction"
+    },
+    {
+      "timestamp": "2025-03-25T21:31:46.908807",
+      "type": "interaction"
+    },
+    {
+      "timestamp": "2025-03-25T21:31:47.036714",
+      "type": "interaction"
+    },
+    {
+      "timestamp": "2025-03-25T21:31:47.162172",
+      "type": "interaction"
+    },
+    {
+      "timestamp": "2025-03-25T21:31:47.458623",
+      "type": "interaction"
+    },
+    {
+      "timestamp": "2025-03-25T21:31:47.459948",
+      "type": "interaction"
+    },
+    {
+      "timestamp": "2025-03-25T21:31:47.461111",
+      "type": "interaction"
+    },
+    {
+      "timestamp": "2025-03-25T21:31:47.462217",
+      "type": "interaction"
+    },
+    {
+      "timestamp": "2025-03-25T21:31:47.463612",
+      "type": "interaction"
+    },
+    {
+      "timestamp": "2025-03-26T10:34:05.435708",
+      "type": "interaction"
+    },
+    {
+      "timestamp": "2025-03-26T10:34:05.559368",
+      "type": "interaction"
+    },
+    {
+      "timestamp": "2025-03-26T10:34:05.687897",
+      "type": "interaction"
+    },
+    {
+      "timestamp": "2025-03-26T10:34:05.909319",
+      "type": "interaction"
+    },
+    {
+      "timestamp": "2025-03-26T10:34:06.229278",
+      "type": "interaction"
+    },
+    {
+      "timestamp": "2025-03-26T10:34:06.230557",
+      "type": "interaction"
+    },
+    {
+      "timestamp": "2025-03-26T10:34:06.231777",
+      "type": "interaction"
+    },
+    {
+      "timestamp": "2025-03-26T10:34:06.232957",
+      "type": "interaction"
+    },
+    {
+      "timestamp": "2025-03-26T10:34:06.234471",
+      "type": "interaction"
+    },
+    {
+      "timestamp": "2025-03-31T15:56:48.115694",
+      "type": "interaction"
+    },
+    {
+      "timestamp": "2025-03-31T15:56:48.272567",
+      "type": "interaction"
+    },
+    {
+      "timestamp": "2025-03-31T15:56:48.445714",
+      "type": "interaction"
+    },
+    {
+      "timestamp": "2025-03-31T15:56:48.687778",
+      "type": "interaction"
+    },
+    {
+      "timestamp": "2025-03-31T15:56:49.036075",
+      "type": "interaction"
+    },
+    {
+      "timestamp": "2025-03-31T15:56:49.037530",
+      "type": "interaction"
+    },
+    {
+      "timestamp": "2025-03-31T15:56:49.038876",
+      "type": "interaction"
+    },
+    {
+      "timestamp": "2025-03-31T15:56:49.040387",
+      "type": "interaction"
+    },
+    {
+      "timestamp": "2025-03-31T15:56:49.042655",
+      "type": "interaction"
+    },
+    {
+      "timestamp": "2025-04-01T14:07:05.120291",
+      "type": "interaction"
+    },
+    {
+      "timestamp": "2025-04-01T14:08:02.384304",
+      "type": "interaction"
+    },
+    {
+      "timestamp": "2025-04-01T14:08:25.133480",
+      "type": "interaction"
+    },
+    {
+      "timestamp": "2025-04-01T18:41:00.706110",
+      "type": "interaction"
+    },
+    {
+      "timestamp": "2025-04-01T18:41:13.634354",
+      "type": "interaction"
+    },
+    {
+      "timestamp": "2025-04-01T18:52:52.227485",
+      "type": "interaction"
+    },
+    {
+      "timestamp": "2025-04-01T18:53:06.939801",
+      "type": "interaction"
+    },
+    {
+      "timestamp": "2025-04-01T18:53:26.046031",
+      "type": "interaction"
+    },
+    {
+      "timestamp": "2025-04-01T18:53:36.117292",
+      "type": "interaction"
+    },
+    {
+      "timestamp": "2025-04-01T19:35:54.778549",
+      "type": "interaction"
+    },
+    {
+      "timestamp": "2025-04-01T19:36:00.242009",
+      "type": "interaction"
+    },
+    {
+      "timestamp": "2025-04-01T20:00:38.692946",
+      "type": "interaction"
+    },
+    {
+      "timestamp": "2025-04-01T20:06:07.027006",
+      "type": "interaction"
+    },
+    {
+      "timestamp": "2025-04-01T20:28:13.967703",
+      "type": "interaction"
+    },
+    {
+      "timestamp": "2025-04-01T20:28:35.108099",
+      "type": "interaction"
+    },
+    {
+      "timestamp": "2025-04-01T22:18:23.508496",
+      "type": "interaction"
+    },
+    {
+      "timestamp": "2025-04-01T22:35:13.411308",
+      "type": "interaction"
+    },
+    {
+      "timestamp": "2025-04-01T22:36:10.233777",
+      "type": "interaction"
+    },
+    {
+      "timestamp": "2025-04-01T22:44:55.066939",
+      "type": "interaction"
+    },
+    {
+      "timestamp": "2025-04-01T22:46:35.165270",
+      "type": "interaction"
+    },
+    {
+      "timestamp": "2025-04-01T22:48:51.276701",
+      "type": "interaction"
+    },
+    {
+      "timestamp": "2025-04-01T22:48:57.892686",
+      "type": "interaction"
+    },
+    {
+      "timestamp": "2025-04-01T22:49:18.822522",
+      "type": "interaction"
+    },
+    {
+      "timestamp": "2025-04-01T22:49:23.325501",
+      "type": "interaction"
+    }
+  ],
+  "last_update": "2025-02-06T19:14:46.480927"
+}

@@ -7,13 +7,17 @@ from .auto_controller import AutoController
 # Fix the import path to use the correct location
 from utils.logger import AdvancedLogger
 
+
+
+
+
 class AutoPilotController:
     """
     Auto-Pilot Controller
     
     Extends the Auto Controller to provide autonomous software development
     with minimal developer intervention. Uses a Master-Slave architecture
-    where the Master AI (Cody or Mistral) guides the development process
+    where the Master AI (Mistral/llama) guides the development process
     and instructs Slave AIs for code generation.
     """
     
@@ -38,8 +42,6 @@ class AutoPilotController:
         self.templates_dir = os.path.join(os.path.dirname(__file__), "templates")
         self._load_templates()
     
-
-
     def _load_templates(self):
         """Load instruction templates for the Auto-Pilot"""
         # Define default templates directly in the code
@@ -54,9 +56,6 @@ class AutoPilotController:
         
         # Log that templates were loaded
         self.logger.info("Auto-Pilot templates loaded successfully")
-
-
-
 
     async def start_auto_pilot(self, project_requirements: str) -> Dict[str, Any]:
         """
@@ -77,8 +76,19 @@ class AutoPilotController:
                 context={"type": "project_initialization"}
             )
         
-        # Generate project plan using Master AI (Cody preferred)
-        master_ai = "cody" if "cody" in self.auto_controller.controllers else "mistral"
+        # Check if project requires current information
+        needs_current_info = self._needs_current_info(project_requirements)
+        
+        # Generate project plan using Master AI (llama/Mistral)
+        master_ai = "llama"  # This is actually Mistral
+        
+        # If current information is needed, get it from Cohere first
+        current_info = ""
+        if needs_current_info and "cohere" in self.auto_controller.controllers:
+            cohere_controller = self.auto_controller.controllers.get("cohere")
+            current_info_prompt = f"Provide the most recent and up-to-date information about: {project_requirements}"
+            current_info = await cohere_controller.process_command(current_info_prompt)
+            self.logger.info("Retrieved current information from Cohere")
         
         # Create prompt for project initialization
         template = self.templates.get("project_initialization", "Create a detailed project plan with phases.")
@@ -87,6 +97,17 @@ class AutoPilotController:
         
         Project Requirements:
         {project_requirements}
+        """
+        
+        # Add current information if available
+        if current_info:
+            prompt += f"""
+            
+            Current Information (from Cohere):
+            {current_info}
+            """
+        
+        prompt += f"""
         
         Please provide:
         1. A detailed project plan with up to 10 phases
@@ -156,6 +177,18 @@ class AutoPilotController:
                 "message": f"Auto-Pilot initialization failed: {str(e)}"
             }
     
+    def _needs_current_info(self, text: str) -> bool:
+        """Determine if a text requires current information beyond Mistral's knowledge cutoff"""
+        text_lower = text.lower()
+        current_info_keywords = [
+            'current', 'recent', 'latest', 'new', 'today', 'this year',
+            '2022', '2023', '2024', 'last month', 'this month',
+            'defi', 'web3', 'crypto', 'blockchain', 'nft',
+            'latest technology', 'new framework', 'recent developments'
+        ]
+        
+        return any(keyword in text_lower for keyword in current_info_keywords)
+    
     async def process_next_module(self) -> Dict[str, Any]:
         """
         Process the next module in the current phase
@@ -200,14 +233,20 @@ class AutoPilotController:
         # Determine which AI should generate the code
         module_type = module.get("type", "").lower()
         
-        # Default to Cody for code generation
-        code_generator = "cody"
+        # Default to DeepSeek for code generation
+        code_generator = "deepseek"
         
         # For specific module types, use specialized AIs
         if "data" in module_type or "analysis" in module_type:
             code_generator = "deepseek"
         elif "documentation" in module_type or "content" in module_type:
             code_generator = "cohere"
+        elif "general" in module_type or "logic" in module_type:
+            code_generator = "llama"  # This is actually Mistral
+        
+        # Check if module requires current information
+        module_desc = module.get("description", "")
+        needs_current_info = self._needs_current_info(module_desc)
         
         # Create prompt for code generation
         template = self.templates.get("code_generation", "Generate code for {module_name} following these requirements: {requirements}")
@@ -222,6 +261,16 @@ class AutoPilotController:
         # Add dependencies information if available
         if "dependencies" in module and module["dependencies"]:
             prompt += f"\n\nDependencies: {', '.join(module['dependencies'])}"
+        
+        # If current information is needed, get it from Cohere first
+        if needs_current_info and "cohere" in self.auto_controller.controllers:
+            cohere_controller = self.auto_controller.controllers.get("cohere")
+            current_info_prompt = f"Provide the most recent and up-to-date information about: {module_desc}"
+            current_info = await cohere_controller.process_command(current_info_prompt)
+            self.logger.info(f"Retrieved current information from Cohere for module {module['name']}")
+            
+            # Add current information to the prompt
+            prompt += f"\n\nCurrent Information (from Cohere):\n{current_info}"
         
         # Generate code
         try:
@@ -257,8 +306,8 @@ class AutoPilotController:
     
     async def _review_code(self, code: str, module_name: str) -> str:
         """Have the Master AI review and improve the generated code"""
-        # Use Cody (or Mistral as fallback) for code review
-        master_ai = "cody" if "cody" in self.auto_controller.controllers else "mistral"
+        # Use Mistral (llama) as the master AI for code review
+        master_ai = "llama"  # This is actually Mistral
         
         template = self.templates.get("code_review", "Review this code and suggest improvements: {code}")
         prompt = f"""
@@ -355,26 +404,3 @@ class AutoPilotController:
         if code_match:
             return code_match.group(1)
         return text
-    
-
-
-    def update_templates(self, new_templates: Dict[str, str]) -> None:
-        """
-        Update the templates used by the Auto-Pilot
-        
-        Args:
-            new_templates: Dictionary of template names and their content
-        """
-        # Update templates
-        for key, value in new_templates.items():
-            self.templates[key] = value
-        
-        # Save updated templates
-        try:
-            templates_path = os.path.join(self.templates_dir, "auto_pilot_templates.json")
-            os.makedirs(self.templates_dir, exist_ok=True)
-            with open(templates_path, "w") as f:
-                json.dump(self.templates, f, indent=2)
-            self.logger.info("Templates updated and saved successfully")
-        except Exception as e:
-            self.logger.error(f"Error saving updated templates: {str(e)}")

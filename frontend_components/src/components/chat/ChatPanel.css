@@ -161,24 +161,24 @@
 
 .autopilot-button:not(.active) {
   background-color: #F44336; /* Red for inactive */
-  color: white;
+  color: #0b5e249d;
 }
 
 /* Voice button */
 .voice-button.active {
   background-color: #4CAF50; /* Green for active */
-  color: white;
+  color: #0b5e249d;
 }
 
 /* Send/Stop button */
 .send-button {
   background-color: #FF6F00; /* Saffron */
-  color: white;
+  color: #0b5e249d;
 }
 
 .send-button.processing {
   background-color: #F44336; /* Red for stop */
-  color: white;
+  color: #0b5e249d;
 }
 
 /*Model switch */
@@ -208,7 +208,7 @@
 
 .message.user {
   align-self: flex-end;
-  background-color: #e1f5fe;
+  background-color: #0b5e249d;
 }
 
 .message.ai {

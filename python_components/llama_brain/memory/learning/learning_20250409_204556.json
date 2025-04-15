@@ -1,0 +1,13 @@
+{
+  "timestamp": "2025-04-09T20:45:56.387739",
+  "prompt": "please create a basic solidity contract in 0.8.19 .",
+  "response_length": 1322,
+  "metrics": {
+    "model": "cohere"
+  },
+  "analysis": {
+    "prompt_complexity": 9,
+    "response_complexity": 191,
+    "contains_code": true
+  }
+}

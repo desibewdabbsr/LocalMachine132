@@ -1,0 +1,13 @@
+{
+  "timestamp": "2025-04-10T20:30:42.778658",
+  "prompt": "please create a hello world using python in flask.",
+  "response_length": 1384,
+  "metrics": {
+    "model": "cohere"
+  },
+  "analysis": {
+    "prompt_complexity": 9,
+    "response_complexity": 216,
+    "contains_code": true
+  }
+}

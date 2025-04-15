@@ -5,6 +5,33 @@ from typing import List, Optional
 from tqdm import tqdm
 from utils.logger import AdvancedLogger
 
+def save_file(file_path, content):
+    """
+    Save content to a file, creating directories as needed
+    
+    Args:
+        file_path: Path to the file
+        content: Content to write to the file
+    """
+    logger = AdvancedLogger().get_logger("FileOperations")
+    
+    try:
+        # Convert to Path object if it's a string
+        path = Path(file_path) if isinstance(file_path, str) else file_path
+        
+        # Create parent directories if they don't exist
+        path.parent.mkdir(parents=True, exist_ok=True)
+        
+        # Write the content to the file
+        with open(path, 'w') as f:
+            f.write(content)
+            
+        logger.info(f"File saved successfully: {path}")
+        return True
+    except Exception as e:
+        logger.error(f"Error saving file {file_path}: {str(e)}")
+        raise
+
 class FileOperations:
     def __init__(self):
         self.logger = AdvancedLogger().get_logger("FileOperations")
@@ -82,4 +109,22 @@ class FileOperations:
                 self.logger.info(f"Successfully deleted: {path}")
         except Exception as e:
             self.logger.error(f"Deletion failed for {path}: {str(e)}")
+            raise
+            
+    def save_file(self, file_path: str, content: str) -> None:
+        """Save content to a file, creating directories as needed"""
+        try:
+            # Convert to Path object if it's a string
+            path = Path(file_path) if isinstance(file_path, str) else file_path
+            
+            # Create parent directories if they don't exist
+            path.parent.mkdir(parents=True, exist_ok=True)
+            
+            # Write the content to the file
+            with open(path, 'w') as f:
+                f.write(content)
+                
+            self.logger.info(f"File saved successfully: {path}")
+        except Exception as e:
+            self.logger.error(f"Error saving file {file_path}: {str(e)}")
             raise

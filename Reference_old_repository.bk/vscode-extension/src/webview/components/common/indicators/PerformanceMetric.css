@@ -1,0 +1,44 @@
+.performance-metrics {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+}
+
+.metric-card {
+    background: var(--color-background);
+    border: 1px solid var(--color-primary);
+    border-radius: 4px;
+    padding: 1rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.metric-card.alert {
+    border-color: var(--color-critical);
+    animation: pulse-red 2s infinite;
+}
+
+.metric-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+}
+
+.metric-value {
+    font-family: var(--font-digital);
+    font-size: 2rem;
+    color: var(--color-operational);
+}
+
+.metric-unit {
+    font-size: 1rem;
+    margin-left: 0.25rem;
+    opacity: 0.8;
+}
+
+.metric-threshold {
+    font-size: 0.8rem;
+    opacity: 0.7;
+    margin-top: 0.5rem;
+}

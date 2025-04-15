@@ -18,6 +18,7 @@ os.environ['MODEL_PATH'] = os.path.join(parent_dir, 'models', 'mistral-7b.gguf')
 from core.server.server import app, socketio
 
 if __name__ == '__main__':
-    port = int(os.environ.get('PORT', 5000))  # Make sure this is 5000
+    port = int(os.environ.get('PORT', 5000))
     print(f"Starting server on port {port}...")
-    socketio.run(app, host='0.0.0.0', port=port, debug=True, allow_unsafe_werkzeug=True)
+    # Disable debug mode to turn off the debugger
+    socketio.run(app, host='0.0.0.0', port=port, debug=False, allow_unsafe_werkzeug=True)

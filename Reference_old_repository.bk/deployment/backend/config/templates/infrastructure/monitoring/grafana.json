@@ -1,0 +1,8 @@
+# Auto-generated monitoring template for grafana.json
+
+monitoring:
+  service: {{ service_name }}
+  metrics:
+    - name: {{ metric_name }}
+      type: {{ metric_type }}
+      threshold: {{ threshold }}

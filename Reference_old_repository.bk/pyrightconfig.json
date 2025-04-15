@@ -1,0 +1,12 @@
+{
+    "include": [
+        "core",
+        "tests",
+        "backend"
+    ],
+    "extraPaths": [
+        "."
+    ],
+    "pythonVersion": "3.8",
+    "pythonPlatform": "Linux"
+}

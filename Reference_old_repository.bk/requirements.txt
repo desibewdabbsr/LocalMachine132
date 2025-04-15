@@ -1,0 +1,97 @@
+
+
+
+# Core Dependencies
+setuptools==75.7.0
+cryptography==44.0.0
+web3==6.15.1
+eth-account==0.10.0
+eth-brownie==1.20.6 #install it manually
+toml==0.10.2
+requests==2.31.0
+responses==0.25.3
+jinja2==3.1.5
+PyYAML==6.0.1
+GitPython==3.1.44
+tqdm==4.66.2
+psutil==5.9.8
+solc-select==1.0.4
+fastapi==0.115.6
+uvicorn==0.27.0
+PyJWT==2.8.0
+httpx
+
+# Machine Learning & AI
+numpy==2.2.3
+scikit-learn==1.6.0
+transformers==4.47.1
+nltk==3.9.1
+
+# Data Science & Visualization
+altair==5.0.0
+pandas==2.2.3
+pyarrow==19.0.1
+pydeck==0.9.1
+
+# Web & API
+flask
+flask-socketio
+python-socketio
+
+aiohttp
+tornado==6.4.2
+
+# Testing & Development
+pytest==6.2.5
+pytest-asyncio==0.18.3      #0.23.5
+pytest-mock==3.14.0
+pytest-cov==6.0.0
+pytest-xdist==1.34.0
+black==24.2.0
+flake8>=6.0.0
+mypy>=1.4.0
+isort>=5.12.0
+
+# Utilities
+attrs==23.2.0
+blinker==1.9.0
+cachetools==5.5.2
+certifi>=2024.2.2
+charset-normalizer==3.3.2
+click==8.1.7
+diskcache==5.6.3
+gitdb==4.0.12
+idna==3.6
+jsonschema==4.21.1
+jsonschema-specifications==2023.12.1
+llama_cpp_python==0.2.11
+Markdown==3.7
+MarkupSafe==3.0.2
+narwhals==1.30.0
+pillow==11.1.0
+protobuf==4.25.3
+python-dateutil==2.9.0.post0
+pytz==2025.1
+referencing==0.33.0
+rpds-py==0.18.0
+six==1.16.0
+smmap==5.0.2
+streamlit==1.43.2
+tenacity==9.0.0
+typer==0.9.0
+typing_extensions==4.9.0
+tzdata==2025.1
+urllib3==2.2.1
+watchdog==6.0.0
+GPUtil
+
+
+
+
+
+
+
+
+
+
+
