@@ -7,15 +7,6 @@ from datetime import datetime
 # Add the parent directory to the Python path for absolute imports
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 
-# Import memory manager and code generator
-try:
-    from python_components.core.ai_integration.llama.memory_manager import MemoryManager
-    from core.ai_integration.cody.code_generator import CodeGenerator
-    memory_imports_successful = True
-except ImportError as e:
-    print(f"Warning: Could not import memory manager or code generator: {e}")
-    memory_imports_successful = False
-
 # Import advanced logger
 try:
     from utils.logger import AdvancedLogger
@@ -26,6 +17,14 @@ except ImportError:
     import logging
     logging.basicConfig(level=logging.INFO)
     logger = logging.getLogger("ai_controller")
+
+# Import LlamaController directly
+try:
+    from python_components.core.ai_integration.llama.controller import LlamaController
+    llama_imports_successful = True
+except ImportError as e:
+    logger.warning(f"Could not import LlamaController: {e}")
+    llama_imports_successful = False
 
 class AIController:
     """
@@ -42,28 +41,23 @@ class AIController:
         # Define standard paths
         self.brain_path = Path(os.environ.get('BRAIN_PATH', 'llama_brain'))
         self.repositories_path = Path('.Repositories')
-        # self.repositories_path.mkdir(parents=True, exist_ok=True)
         
-        # Initialize memory manager
-        if memory_imports_successful:
+        # Initialize LlamaController if imports were successful
+        if llama_imports_successful:
             try:
-                self.memory_manager = MemoryManager(self.brain_path)
-                logger.info("Memory manager initialized")
-            except Exception as e:
-                logger.warning(f"Failed to initialize memory manager: {e}")
-                self.memory_manager = None
+                # LlamaController already handles command processor internally
+                self.llama_controller = LlamaController(None)  # Pass None as it will create its own command processor
+                logger.info("LlamaController initialized successfully")
                 
-            # Initialize code generator
-            try:
-                self.code_generator = CodeGenerator()
-                logger.info("Code generator initialized")
+                # Register the LlamaController as the "llama" model
+                self.register_controller("llama", self.llama_controller)
             except Exception as e:
-                logger.warning(f"Failed to initialize code generator: {e}")
-                self.code_generator = None
+                logger.warning(f"Failed to initialize LlamaController: {e}")
+                self.llama_controller = None
+                self.last_error = str(e)
         else:
-            self.memory_manager = None
-            self.code_generator = None
-            logger.warning("Memory manager and code generator imports failed")
+            self.llama_controller = None
+            logger.warning("LlamaController import failed")
         
         # Load config using ConfigManager
         try:
@@ -74,7 +68,6 @@ class AIController:
         except Exception as e:
             logger.warning(f"Could not load ConfigManager: {e}")
             self.config = {}
-    
     
     def register_controller(self, name: str, controller: Any) -> None:
         """Register an AI controller"""
@@ -90,8 +83,7 @@ class AIController:
             "available_models": list(self.controllers.keys()),
             "last_error": self.last_error,
             "core_backend_available": bool(self.controllers),
-            "memory_manager_available": self.memory_manager is not None,
-            "code_generator_available": self.code_generator is not None
+            "llama_controller_available": self.llama_controller is not None
         }
     
     def get_available_models(self) -> List[str]:
@@ -108,9 +100,6 @@ class AIController:
         self.model_type = model_type
         logger.info(f"Model set to: {model_type}")
     
-
-
-
     def _select_model(self, message: str) -> str:
         """
         Select the most appropriate model based on message content
@@ -154,11 +143,6 @@ class AIController:
             if message.lower().strip() in simple_greetings:
                 return {"content": "Hello! I'm your AI assistant. How can I help you today?"}
             
-            # Store interaction in memory manager if available
-            if self.memory_manager:
-                interaction_id = self.memory_manager.store_interaction(message)
-                logger.info(f"Stored interaction with ID: {interaction_id}")
-            
             # Select the model to use
             model = self._select_model(message)
             
@@ -170,14 +154,12 @@ class AIController:
                 elif hasattr(controller, 'process_command'):
                     response_text = await controller.process_command(message)
                     response = {"content": response_text}
-                
-                # Store learning data if memory manager is available
-                if self.memory_manager and isinstance(response, dict) and "content" in response:
-                    self.memory_manager.update_learning(
-                        prompt=message,
-                        response=response["content"],
-                        metrics={"model": model}
-                    )
+                elif hasattr(controller, 'process_request'):
+                    # For LlamaController which uses process_request
+                    response_text = await controller.process_request(message)
+                    response = {"content": response_text}
+                else:
+                    response = {"content": "Controller doesn't have a compatible processing method"}
                 
                 return response
             
@@ -187,48 +169,54 @@ class AIController:
             logger.error(f"Error processing message: {e}", exc_info=True)
             return {"content": f"Error processing message: {str(e)}", "error": str(e)}
     
+
+
+
+
+
     async def generate_code(self, prompt: str) -> Dict[str, Any]:
         """Generate code based on the prompt"""
         try:
             if not self.initialized:
                 return {"content": "AI controller not initialized", "error": self.last_error}
             
-            # Use code generator if available
-            if self.code_generator:
+            # Use LlamaController for code generation if available
+            if self.llama_controller:
                 try:
-                    # Initialize llama if needed
-                    if not hasattr(self.code_generator, 'llama_controller'):
-                        self.code_generator.initialize_llama()
+                    # Process the request using LlamaController
+                    template_type = self.llama_controller._determine_template_type(prompt)
+                    response = await self.llama_controller.process_request(prompt)
                     
-                    # Verify connection
-                    connection_ok = await self.code_generator.verify_connection()
-                    if not connection_ok:
-                        logger.warning("Code generator connection verification failed")
-                    
-                    # Generate contract based on prompt
-                    spec = {"type": "auto", "prompt": prompt}
-                    result = await self.code_generator.generate_contract(spec)
-                    
-                    # Save the generated code to the repositories directory
-                    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-                    file_path = f"generated_{timestamp}/main.js"
-                    
-                    # Create directory if it doesn't exist
-                    file_dir = self.repositories_path / f"generated_{timestamp}"
-                    file_dir.mkdir(parents=True, exist_ok=True)
-                    
-                    # Write the code to file
-                    with open(self.repositories_path / file_path, 'w') as f:
-                        f.write(result.code)
-                    
-                    return {
-                        "content": result.code,
-                        "analysis": result.analysis,
-                        "metadata": result.metadata,
-                        "file_path": file_path
-                    }
+                    # Try to use the CodeGenerator from cody module if available
+                    try:
+                        from python_components.core.ai_integration.cody.code_generator import CodeGenerator
+                        code_generator = CodeGenerator()
+                        
+                        # Generate code using the specialized generator
+                        generated_code = await code_generator.generate_code(prompt, template_type)
+                        
+                        # Save the generated code
+                        file_info = code_generator.save_code_to_file(generated_code, prompt)
+                        
+                        return {
+                            "content": response,
+                            "generated_code": generated_code,
+                            "template_type": str(template_type),
+                            "file_info": file_info
+                        }
+                    except ImportError:
+                        # Fall back to CodeFileHandler if CodeGenerator is not available
+                        from python_components.core.code_handler.code_file_handler import CodeFileHandler
+                        code_handler = CodeFileHandler()
+                        file_info = code_handler.create_file_for_code(response, prompt)
+                        
+                        return {
+                            "content": response,
+                            "template_type": str(template_type),
+                            "file_info": file_info
+                        }
                 except Exception as e:
-                    logger.error(f"Error using code generator: {e}")
+                    logger.error(f"Error using LlamaController: {e}", exc_info=True)
                     # Fall back to model-based generation
             
             # For code generation, prefer deepseek if available
@@ -243,5 +231,5 @@ class AIController:
             # Fallback to process_message if generate_code is not available
             return await self.process_message(f"Generate code for: {prompt}")
         except Exception as e:
-            logger.error(f"Error generating code: {e}")
+            logger.error(f"Error generating code: {e}", exc_info=True)
             return {"content": f"Error generating code: {str(e)}", "error": str(e)}

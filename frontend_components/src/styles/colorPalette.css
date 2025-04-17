@@ -1,0 +1,76 @@
+:root {
+  /* Primary colors */
+  --color-gold: #FFD700;
+  --color-saffron: #FF6F00;
+  --color-forest-green: rgba(11, 94, 36, 0.5);
+  --color-forest-green-dark: rgba(11, 94, 36, 0.8);
+  
+  /* Background colors */
+  --bg-dark: #1e1e1e;
+  --bg-secondary: #252526;
+  --bg-tertiary: #2E2E2E;
+  --bg-elevated: #3c3c3c;
+  
+  /* Text colors */
+  --text-primary: #e6e6e6;
+  --text-secondary: #b0b0b0;
+  --text-gold: #FFD700;
+  --text-saffron: #FF6F00;
+  
+  /* Status colors */
+  --color-success: #4CAF50;
+  --color-warning: #FFC107;
+  --color-error: #F44336;
+  --color-info: #2196F3;
+  
+  /* Interactive elements */
+  --button-primary: #FFD700;
+  --button-secondary: #3c3c3c;
+  --button-hover: #ffcc00;
+  --button-active: #e6c200;
+  --link-color: #FF6F00;
+  
+  /* Borders and dividers */
+  --border-primary: #FFD700;
+  --border-secondary: #3e3e3e;
+  --divider-color: #3e3e3e;
+  
+  /* File type colors */
+  --file-js: #f1e05a;
+  --file-py: #3572A5;
+  --file-html: #e34c26;
+  --file-css: #563d7c;
+  --file-sol: #AA6746;
+  --file-md: #083fa1;
+  --file-json: #40a14f;
+  --file-config: #6e6e6e;
+  
+  /* Scrollbar colors */
+  --scrollbar-thumb: var(--color-saffron);
+  --scrollbar-track: var(--bg-secondary);
+}
+
+/* Global scrollbar styling */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
+}
+
+*::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+*::-webkit-scrollbar-track {
+  background: var(--scrollbar-track);
+}
+
+*::-webkit-scrollbar-thumb {
+  background-color: var(--scrollbar-thumb);
+  border-radius: 4px;
+  border: 2px solid var(--scrollbar-track);
+}
+
+*::-webkit-scrollbar-corner {
+  background: var(--scrollbar-track);
+}

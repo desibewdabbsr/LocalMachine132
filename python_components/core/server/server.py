@@ -5,6 +5,10 @@ from flask import Flask, request, jsonify
 from flask_socketio import SocketIO
 from flask_cors import CORS
 from datetime import datetime
+import subprocess
+import glob
+from pathlib import Path
+
 
 # Add the parent directory to the Python path for absolute imports
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
@@ -615,6 +619,122 @@ def resume_auto_pilot():
         return jsonify({'error': str(e)}), 500
 
 
+
+
+
+
+
+
+# Add endpoint to get files
+@app.route('/api/files', methods=['GET'])
+def get_files():
+    """Get list of files in the .Repositories directory"""
+    try:
+        # Get the base directory
+        base_dir = os.path.abspath('.Repositories')
+        
+        # Check if directory exists
+        if not os.path.exists(base_dir):
+            return jsonify([]), 200
+        
+        # Function to recursively build file tree
+        def build_file_tree(directory, parent_id='repo-root'):
+            result = []
+            
+            # Get all items in the directory
+            items = sorted(os.listdir(directory))
+            
+            for item in items:
+                item_path = os.path.join(directory, item)
+                item_id = f"file-{os.path.relpath(item_path, base_dir).replace('/', '-')}"
+                
+                if os.path.isdir(item_path):
+                    # It's a directory
+                    children = build_file_tree(item_path, item_id)
+                    result.append({
+                        'id': item_id,
+                        'name': item,
+                        'type': 'folder',
+                        'path': os.path.relpath(item_path, base_dir),
+                        'children': children
+                    })
+                else:
+                    # It's a file
+                    # Determine language based on extension
+                    _, ext = os.path.splitext(item)
+                    language = 'text'
+                    
+                    if ext in ['.js', '.jsx']:
+                        language = 'javascript'
+                    elif ext in ['.ts', '.tsx']:
+                        language = 'typescript'
+                    elif ext in ['.py']:
+                        language = 'python'
+                    elif ext in ['.sol']:
+                        language = 'solidity'
+                    elif ext in ['.html']:
+                        language = 'html'
+                    elif ext in ['.css']:
+                        language = 'css'
+                    
+                    # Read file content (limit to 100KB to prevent large files)
+                    try:
+                        with open(item_path, 'r') as f:
+                            content = f.read(102400)  # Read up to 100KB
+                    except:
+                        content = "Binary file or encoding error"
+                    
+                    result.append({
+                        'id': item_id,
+                        'name': item,
+                        'type': 'file',
+                        'path': os.path.relpath(item_path, base_dir),
+                        'language': language,
+                        'content': content
+                    })
+            
+            return result
+        
+        # Build the file tree
+        file_tree = build_file_tree(base_dir)
+        
+        return jsonify(file_tree), 200
+    except Exception as e:
+        logger.error(f"Error getting files: {str(e)}")
+        return jsonify({'error': str(e)}), 500
+    
+
+
+
+
+# Add endpoint to execute terminal commands
+@app.route('/api/terminal/execute', methods=['POST'])
+def execute_command():
+    """Execute a terminal command"""
+    try:
+        data = request.json
+        command = data.get('command', '')
+        
+        if not command:
+            return jsonify({'error': 'No command provided'}), 400
+        
+        # Limit commands to safe operations
+        safe_commands = ['ls', 'dir', 'pwd', 'echo', 'cat', 'head', 'tail', 'find', 'grep']
+        command_parts = command.split()
+        
+        if command_parts[0] not in safe_commands:
+            return jsonify({'output': f"Command '{command_parts[0]}' not allowed for security reasons"}), 200
+        
+        # Execute the command
+        result = subprocess.run(command_parts, capture_output=True, text=True, timeout=5)
+        
+        return jsonify({
+            'output': result.stdout if result.returncode == 0 else f"Error: {result.stderr}",
+            'exit_code': result.returncode
+        }), 200
+    except Exception as e:
+        logger.error(f"Error executing command: {str(e)}")
+        return jsonify({'error': str(e)}), 500
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))

@@ -1,17 +1,12 @@
 
+
+
 from dataclasses import dataclass
 from datetime import datetime
 from utils.logger import AdvancedLogger
 from .template_manager import TemplateManager, TemplateCategory
 
-# class LlamaController(IController):
-#     def __init__(self, command_processor: ICommandProcessor, config: Optional[LlamaConfig] = None):
-        # self.config = config or LlamaConfig()
-        # self.template_manager = TemplateManager(self.config.brain_path)
-        # self.memory_manager = MemoryManager(self.config.brain_path)
-        # self.logger = AdvancedLogger().get_logger("llama_controller")
-        # self.command_processor = CommandProcessor(self.config.brain_path)
-        # self.command_processor = command_processor
+
 from typing import Optional, Dict, Any, List
 from pathlib import Path
 from core.ai_integration.cody.security_checker import SecurityChecker

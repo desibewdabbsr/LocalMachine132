@@ -1,75 +1,57 @@
-/**
- * File Explorer Component Styles
- * Styled to match Terminal component's styling
- */
-
 .file-explorer {
   display: flex;
   flex-direction: column;
-  width: 100%;
   height: 100%;
-  background-color: #1B1B1B;
-  color: #FFD700;
-  font-family: 'Manrope', sans-serif;
-  border: 1px solid #FFD700;
+  background-color: #1e1e1e;
+  color: #e6e6e6;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
 .explorer-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0 10px;
-  background-color: #444444;
-  border-bottom: 1px solid #FFD700;
-  height: 28px; /* Match the terminal header height */
+  padding: 8px 12px;
+  background-color: #252526;
+  border-bottom: 1px solid #3e3e3e;
 }
 
 .explorer-title {
-  display: flex;
-  align-items: center;
   font-size: 12px;
   font-weight: bold;
+  color: #ffd700; /* Gold */
 }
 
 .explorer-controls {
   display: flex;
-  gap: 5px;
 }
 
 .explorer-control-button {
-  background-color: transparent;
+  background: none;
   border: none;
-  color: #FFD700;
+  color: #e6e6e6;
   cursor: pointer;
-  font-size: 16px;
-  padding: 2px 5px;
-  transition: all 0.2s ease;
+  padding: 4px;
+  margin-left: 4px;
+  border-radius: 4px;
+  transition: background-color 0.2s;
 }
 
 .explorer-control-button:hover {
-  color: #FF6F00;
+  background-color: rgba(255, 215, 0, 0.1); /* Gold with low opacity */
+  color: #ffd700; /* Gold */
 }
 
 .explorer-content {
   flex: 1;
-  overflow-y: auto;
-  padding: 5px 0;
-  /* Saffron scrollbar */
-  scrollbar-width: thin;
-  scrollbar-color: #FF6F00 transparent;
+  overflow: auto;
+  padding: 8px 0;
 }
 
-.explorer-content::-webkit-scrollbar {
-  width: 8px;
-}
-
-.explorer-content::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.explorer-content::-webkit-scrollbar-thumb {
-  background-color: #FF6F00;
-  border-radius: 0;
+.loading-message {
+  padding: 16px;
+  text-align: center;
+  color: #e6e6e6;
 }
 
 .repository-root {
@@ -82,123 +64,51 @@
   padding: 4px 8px;
   cursor: pointer;
   font-weight: bold;
-  color: #FFFFFF;
+  color: #ffd700; /* Gold */
 }
 
 .repository-header:hover {
-  background-color: rgba(255, 215, 0, 0.1);
+  background-color: rgba(255, 215, 0, 0.1); /* Gold with low opacity */
 }
 
 .collapse-icon {
-  margin-right: 6px;
-  font-size: 10px;
-  color: #FF6F00;
+  margin-right: 8px;
 }
 
 .repository-name {
-  font-size: 15px;
+  flex: 1;
 }
 
 .repository-files {
-  position: relative;
+  margin-top: 4px;
 }
 
-/* Tree item container */
-.tree-item-container {
-  position: relative;
+.empty-state {
+  padding: 16px;
+  text-align: center;
+  color: #888;
 }
 
-/* Add or update these styles in FileBrowser.css */
-.file-item {
-  display: flex;
-  align-items: center;
-  padding: 4px 8px;
+.empty-state-icon {
+  font-size: 24px;
+  margin-bottom: 8px;
+}
+
+.empty-state-message {
+  margin-bottom: 16px;
+}
+
+.empty-state-button {
+  background-color: #ffd700; /* Gold */
+  color: #000;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
   cursor: pointer;
+  font-weight: bold;
   transition: background-color 0.2s;
-  white-space: nowrap;
-  position: relative;
-  height: 22px;
-  font-size: 14px; /* Explicitly set font size */
-  line-height: 1.5; /* Improve line height for better readability */
 }
 
-.file-item:hover {
-  background-color: rgba(255, 215, 0, 0.1);
-}
-
-.file-item.active {
-  background-color: rgba(255, 111, 0, 0.2);
-}
-
-/* Folder toggle icon */
-.folder-toggle {
-  display: inline-block;
-  width: 16px;
-  text-align: center;
-  color: #FF6F00;
-  font-size: 10px;
-  margin-right: 4px;
-}
-
-/* File and folder icons */
-.file-icon, .folder-icon {
-  margin-right: 8px;
-}
-
-.folder-icon {
-  color: #FF6F00;
-}
-
-.file-name {
-  flex: 1;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  font-size: 14px; /* Consistent font size */
-}
-
-
-/* Folder children container */
-.folder-children {
-  position: relative;
-}
-
-/* Loading message */
-.loading-message {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100px;
-  color: #AAAAAA;
-  font-style: italic;
-  padding: 20px;
-}
-
-/* Styling for expanded folders */
-.file-item.folder.expanded .folder-icon {
-  color: #FF6F00;
-}
-
-/* Styling for the repository header when expanded */
-.repository-header.expanded .collapse-icon {
-  color: #FF6F00;
-}
-
-/* View mode toggle button */
-.view-mode-toggle {
-  margin-right: 8px;
-  cursor: pointer;
-  color: #FFD700;
-  transition: color 0.2s ease;
-}
-
-.view-mode-toggle:hover {
-  color: #FF6F00;
-}
-
-/* Empty state message */
-.empty-folder-message {
-  padding: 10px;
-  color: #AAAAAA;
-  font-style: italic;
-  text-align: center;
+.empty-state-button:hover {
+  background-color: #ffcc00; /* Slightly darker gold */
 }

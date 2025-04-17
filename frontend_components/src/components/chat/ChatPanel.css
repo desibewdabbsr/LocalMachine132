@@ -1,221 +1,90 @@
-/**
- * Chat Panel Styles
- */
+.chat-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background-color: var(--bg-dark);
+  color: var(--text-primary);
+  position: relative;
+}
 
-@font-face {
-  font-family: 'VT323';
-  src: url('https://fonts.googleapis.com/css2?family=VT323&display=swap');
+.connection-status {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  padding: 4px 8px;
+  font-size: 12px;
+  text-align: center;
+  z-index: 10;
+}
+
+.connection-status.connected {
+  background-color: var(--color-success);
+  color: var(--text-primary);
+}
+
+.connection-status.connecting {
+  background-color: var(--color-warning);
+  color: var(--bg-dark);
+}
+
+.connection-status.error {
+  background-color: var(--color-error);
+  color: var(--text-primary);
 }
 
 .chat-panel {
   display: flex;
   align-items: center;
+  padding: 10px;
+  background-color: var(--bg-secondary);
+  border-top: 1px solid var(--border-secondary);
+  position: relative;
+}
+
+.generation-progress {
   position: absolute;
-  bottom: 4%; /* 2% above the notification bar (which is 2% height) */
-  left: 4%; /* Leave space for the left buttons */
-  width: calc(100% - 8%); /* Account for left and right button space */
-  height: 8%; /* Default height */
-  overflow: visible; /* Allow dropdown to be visible outside */
-}
-
-/* Chat input area */
-.chat-input {
-  height: 100%;
-  width: 100%;
-  background-color: #2E2E2E;
-  color: #FF6F00; /* Saffron text color */
-  border: 1px solid #FFD700; /* Gold border */
-  border-radius: 0; /* Perfect square corners */
-  padding: 8px 12px;
-  font-family: 'VT323', 'Courier New', monospace; /* Dotmatrix-like font */
-  font-size: 16px;
-  resize: none;
-  outline: none;
-  transition: all 0.3s ease;
-  overflow-y: hidden; /* Hide scrollbar by default */
-  max-height: 40vh; /* Maximum expanded height */
-}
-
-/* Custom scrollbar styling for all elements in chat panel */
-.chat-panel *::-webkit-scrollbar {
-  width: 8px;
-}
-
-.chat-panel *::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.chat-panel *::-webkit-scrollbar-thumb {
-  background-color: #FF6F00; /* Saffron scrollbar */
-  border-radius: 0;
-}
-
-/* Firefox scrollbar */
-.chat-panel * {
-  scrollbar-width: thin;
-  scrollbar-color: #FF6F00 transparent;
-}
-
-.chat-input:focus {
-  box-shadow: 0 0 5px rgba(255, 215, 0, 0.5); /* Gold glow */
-}
-
-/* Control buttons container */
-.chat-controls {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  position: absolute;
-  top: 0;
-}
-
-.left-controls {
-  left: -4%; /* Position outside the chat box, touching the service menu divider */
-}
-
-.right-controls {
-  right: -4%; /* Position outside the chat box on the right */
-}
-
-/* Control buttons */
-.control-button {
-  width: 4vh;
-  height: 4vh;
+  bottom: 100%;
+  left: 0;
+  right: 0;
+  height: 24px;
+  background-color: var(--bg-secondary);
   display: flex;
   align-items: center;
-  justify-content: center;
-  background-color: #444444;
-  color: #FFD700; /* Gold text */
-  border: 1px solid #FFD700; /* Gold border */
-  border-radius: 0; /* Perfect square corners */
-  font-weight: bold;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  padding: 0;
-  margin: 0;
+  padding: 0 10px;
+  font-size: 12px;
 }
 
-.control-button:hover {
-  background-color: #2E2E2E;
-  box-shadow: 0 0 6px #FFD700; /* Gold glow */
+.progress-bar {
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 2px;
+  background-color: var(--color-saffron);
+  transition: width 0.2s ease-in-out;
 }
 
-/* Model selector */
-.model-selector {
-  position: relative;
-  margin-bottom: 0; /* No gap between buttons */
+.progress-text {
+  margin-left: 10px;
+  color: var(--text-secondary);
 }
 
-.model-button {
-  font-size: 16px;
+/* Custom scrollbar for the entire chat container */
+.chat-container {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-saffron) var(--bg-secondary);
 }
 
-.model-dropdown {
-    position: absolute;
-    bottom: 100%; /* Position above the button instead of to the right */
-    left: 0; /* Align with the left edge of the button */
-    width: 150px;
-    background-color: #2E2E2E;
-    border: 1px solid #FFD700;
-    z-index: 100;
-    max-height: 200px;
-    overflow-y: auto;
-    scrollbar-width: thin;
-    scrollbar-color: #FF6F00 transparent;
-  }
-
-.model-dropdown::-webkit-scrollbar {
+.chat-container::-webkit-scrollbar {
   width: 8px;
 }
 
-.model-dropdown::-webkit-scrollbar-track {
-  background: transparent;
+.chat-container::-webkit-scrollbar-track {
+  background: var(--bg-secondary);
 }
 
-.model-dropdown::-webkit-scrollbar-thumb {
-  background-color: #FF6F00; /* Saffron scrollbar */
-  border-radius: 0;
-}
-
-.model-option {
-  padding: 8px 12px;
-  cursor: pointer;
-  color: #FFD700;
-  font-family: 'VT323', 'Courier New', monospace;
-}
-
-.model-option:hover {
-  background-color: #444444;
-}
-
-.model-option.selected {
-  background-color: #FF6F00;
-  color: white;
-}
-
-/* Auto-pilot button */
-.autopilot-button.active {
-  background-color: #4CAF50; /* Green for active */
-  color: white;
-}
-
-.autopilot-button:not(.active) {
-  background-color: #F44336; /* Red for inactive */
-  color: #0b5e249d;
-}
-
-/* Voice button */
-.voice-button.active {
-  background-color: #4CAF50; /* Green for active */
-  color: #0b5e249d;
-}
-
-/* Send/Stop button */
-.send-button {
-  background-color: #FF6F00; /* Saffron */
-  color: #0b5e249d;
-}
-
-.send-button.processing {
-  background-color: #F44336; /* Red for stop */
-  color: #0b5e249d;
-}
-
-/*Model switch */
-
-.chat-container {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  width: 100%;
-  position: relative;
-}
-
-.chat-messages {
-  flex: 1;
-  overflow-y: auto;
-  padding: 1rem;
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
-
-.message {
-  max-width: 80%;
-  padding: 0.5rem 1rem;
-  border-radius: 8px;
-}
-
-.message.user {
-  align-self: flex-end;
-  background-color: #0b5e249d;
-}
-
-.message.ai {
-  align-self: flex-start;
-}
-
-.user-message {
-  white-space: pre-wrap;
-  word-break: break-word;
+.chat-container::-webkit-scrollbar-thumb {
+  background-color: var(--color-saffron);
+  border-radius: 4px;
+  border: 2px solid var(--bg-secondary);
 }

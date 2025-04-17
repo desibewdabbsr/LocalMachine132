@@ -1,0 +1,29 @@
+{
+  "interactions": [
+    {
+      "timestamp": "2025-04-17T12:01:25.701062",
+      "type": "interaction"
+    },
+    {
+      "timestamp": "2025-04-17T12:01:25.724253",
+      "type": "interaction"
+    },
+    {
+      "timestamp": "2025-04-17T12:01:33.109054",
+      "type": "interaction"
+    },
+    {
+      "timestamp": "2025-04-17T12:01:33.123903",
+      "type": "interaction"
+    },
+    {
+      "timestamp": "2025-04-17T12:08:58.743828",
+      "type": "interaction"
+    },
+    {
+      "timestamp": "2025-04-17T12:08:58.762080",
+      "type": "interaction"
+    }
+  ],
+  "last_update": "2025-04-17T12:01:25.641846"
+}

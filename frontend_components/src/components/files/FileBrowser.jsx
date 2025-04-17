@@ -1,5 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import './FileBrowser.css';
+import FileTreeView from './FileTreeView';
+import FileOperations from './FileOperations';
+import { getFileIcon } from './file_utils';
+import apiService from '../../services/apiService';
 import mockFileSystem from '../../data/mockFileSystem';
 
 /**
@@ -14,23 +18,58 @@ const FileBrowser = ({ instanceId }) => {
   const [expandedFolders, setExpandedFolders] = useState({});
   const [repositoryName, setRepositoryName] = useState('LocalMachine132');
   const [viewMode, setViewMode] = useState('tree'); // 'tree' or 'files'
+  const [contextMenu, setContextMenu] = useState({
+    visible: false,
+    position: null,
+    item: null
+  });
+  const [error, setError] = useState(null);
+  const [useTestData, setUseTestData] = useState(true); // Toggle for using mock data
 
   // Load the project structure
-  useEffect(() => {
-    // In a real implementation, this would fetch from the backend
-    setTimeout(() => {
-      // Log the mock data to verify content is present
-      console.log('Loading mock file system:', mockFileSystem);
-      
-      setFiles(mockFileSystem);
+  const loadFiles = async () => {
+    setIsLoading(true);
+    setError(null);
+    
+    try {
+      // Use mock data for testing or real API for production
+      if (useTestData) {
+        // Simulate API delay
+        setTimeout(() => {
+          setFiles(mockFileSystem);
+          setIsLoading(false);
+          
+          // Auto-expand the repository root and some key folders
+          setExpandedFolders({ 
+            'repo-root': true,
+            'folder-projects': true,
+            'folder-localmachine132': true
+          });
+        }, 500);
+      } else {
+        const response = await apiService.getFiles();
+        console.log('Loaded file system:', response);
+        
+        setFiles(response);
+        
+        // Auto-expand the repository root
+        setExpandedFolders(prev => ({ 
+          ...prev,
+          'repo-root': true 
+        }));
+        
+        setIsLoading(false);
+      }
+    } catch (error) {
+      console.error('Error loading files:', error);
+      setError('Failed to load files. Please try again.');
       setIsLoading(false);
-      // Auto-expand the repository root and Projects folder
-      setExpandedFolders({ 
-        'repo-root': true,
-        'folder-projects': true,
-        'folder-localmachine132': true
-      });
-    }, 500);
+    }
+  };
+
+  // Load files on component mount
+  useEffect(() => {
+    loadFiles();
   }, []);
 
   // Toggle view mode between tree and files
@@ -78,11 +117,7 @@ const FileBrowser = ({ instanceId }) => {
       return;
     }
 
-    // Log the file to verify content is present
     console.log('Opening file:', file);
-    console.log('File content:', file.content);
-    console.log('Content type:', typeof file.content);
-    console.log('Content length:', file.content ? file.content.length : 0);
 
     // Create a unique ID for this file
     const fileTabId = `file-${file.id}`;
@@ -100,9 +135,6 @@ const FileBrowser = ({ instanceId }) => {
       }
     };
 
-    // Log the file data to verify it's structured correctly
-    console.log('File data to be dispatched:', fileData);
-
     // Dispatch a custom event that WorkspaceManager can listen to
     const openFileEvent = new CustomEvent('LocalMachine132:openFile', {
       detail: {
@@ -114,53 +146,49 @@ const FileBrowser = ({ instanceId }) => {
     window.dispatchEvent(openFileEvent);
   };
 
-  // Render a file or folder item
-  const renderItem = (item, depth = 0, isLast = false) => {
-    const indent = depth * 16; // 16px indentation per level
+  // Handle context menu
+  const handleContextMenu = (e, item) => {
+    e.preventDefault();
     
-    if (item.type === 'folder') {
-      const isExpanded = expandedFolders[item.id];
-      const hasChildren = item.children && item.children.length > 0;
-      
-      return (
-        <div key={item.id} className="tree-item-container">
-          <div 
-            className={`file-item folder ${isExpanded ? 'expanded' : ''}`}
-            style={{ paddingLeft: `${indent}px` }}
-            onClick={(e) => toggleFolder(item.id, e)}
-          >
-            <span className="folder-toggle">{hasChildren ? (isExpanded ? '▼' : '►') : ''}</span>
-            <span className="folder-icon">{isExpanded ? '📂' : '📁'}</span>
-            <span className="file-name">{item.name}</span>
-          </div>
-          
-          {isExpanded && hasChildren && (
-            <div className="folder-children">
-              {item.children.map((child, index) => 
-                renderItem(
-                  child, 
-                  depth + 1, 
-                  index === item.children.length - 1
-                )
-              )}
-            </div>
-          )}
-        </div>
-      );
-    } else {
-      return (
-        <div key={item.id} className="tree-item-container">
-          <div 
-            className="file-item"
-            style={{ paddingLeft: `${indent}px` }}
-            onClick={() => openFileInWorkspace(item.id)}
-          >
-            <span className="file-icon">📄</span>
-            <span className="file-name">{item.name}</span>
-          </div>
-        </div>
-      );
-    }
+    setContextMenu({
+      visible: true,
+      position: { x: e.clientX, y: e.clientY },
+      item
+    });
+  };
+
+  // Close context menu
+  const closeContextMenu = () => {
+    setContextMenu({
+      visible: false,
+      position: null,
+      item: null
+    });
+  };
+
+  // Handle refresh
+  const handleRefresh = () => {
+    loadFiles();
+  };
+
+  // Handle collapse all
+  const handleCollapseAll = () => {
+    setExpandedFolders({ 'repo-root': true });
+  };
+
+  // Create new file
+  const handleNewFile = () => {
+    setContextMenu({
+      visible: true,
+      position: { x: 100, y: 100 }, // Position near the top of the explorer
+      item: { id: 'repo-root', name: repositoryName, type: 'folder', path: '.' }
+    });
+  };
+
+  // Toggle between test data and real API
+  const toggleDataSource = () => {
+    setUseTestData(prev => !prev);
+    loadFiles();
   };
 
   return (
@@ -175,16 +203,53 @@ const FileBrowser = ({ instanceId }) => {
           >
             {viewMode === 'tree' ? '🌲' : '📁'}
           </button>
-          <button className="explorer-control-button" title="New File">📝</button>
-          <button className="explorer-control-button" title="New Folder">📁+</button>
-          <button className="explorer-control-button" title="Refresh">🔄</button>
-          <button className="explorer-control-button" title="Collapse All">⬆️</button>
+          <button 
+            className="explorer-control-button" 
+            onClick={handleNewFile}
+            title="New File"
+          >
+            📝
+          </button>
+          <button 
+            className="explorer-control-button" 
+            onClick={handleRefresh}
+            title="Refresh"
+          >
+            🔄
+          </button>
+          <button 
+            className="explorer-control-button" 
+            onClick={handleCollapseAll}
+            title="Collapse All"
+          >
+            ⬆️
+          </button>
+          <button 
+            className="explorer-control-button" 
+            onClick={toggleDataSource}
+            title={useTestData ? "Switch to API data" : "Switch to test data"}
+          >
+            {useTestData ? "🧪" : "🌐"}
+          </button>
         </div>
       </div>
       
       <div className="explorer-content">
         {isLoading ? (
           <div className="loading-message">Loading files...</div>
+        ) : error ? (
+          <div className="error-message">{error}</div>
+        ) : files.length === 0 ? (
+          <div className="empty-state">
+            <div className="empty-state-icon">📁</div>
+            <div className="empty-state-message">No files found</div>
+            <button 
+              className="empty-state-button"
+              onClick={handleNewFile}
+            >
+              Create New File
+            </button>
+          </div>
         ) : (
           <div className="repository-root">
             <div 
@@ -197,14 +262,27 @@ const FileBrowser = ({ instanceId }) => {
             
             {expandedFolders['repo-root'] && (
               <div className="repository-files">
-                {files.map((item, index) => 
-                  renderItem(item, 0, index === files.length - 1)
-                )}
+                <FileTreeView 
+                  files={files}
+                  expandedFolders={expandedFolders}
+                  onToggleFolder={toggleFolder}
+                  onFileSelect={openFileInWorkspace}
+                  onContextMenu={handleContextMenu}
+                />
               </div>
             )}
           </div>
         )}
       </div>
+      
+      {contextMenu.visible && (
+        <FileOperations 
+          contextMenuPosition={contextMenu.position}
+          selectedItem={contextMenu.item}
+          onClose={closeContextMenu}
+          onRefresh={loadFiles}
+        />
+      )}
     </div>
   );
 };

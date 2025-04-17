@@ -1,0 +1,48 @@
+.chat-input {
+  flex: 1;
+  margin: 0 10px;
+  padding: 10px 15px;
+  border-radius: 20px;
+  border: 1px solid var(--border-secondary);
+  background-color: var(--bg-tertiary);
+  color: var(--text-primary);
+  font-size: 14px;
+  resize: none;
+  min-height: 40px;
+  max-height: 40vh;
+  transition: border-color 0.3s;
+  outline: none;
+}
+
+.chat-input:focus {
+  border-color: var(--color-gold);
+}
+
+.chat-input::placeholder {
+  color: var(--text-secondary);
+}
+
+.chat-input:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+/* Custom scrollbar for the textarea */
+.chat-input {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-saffron) var(--bg-tertiary);
+}
+
+.chat-input::-webkit-scrollbar {
+  width: 6px;
+}
+
+.chat-input::-webkit-scrollbar-track {
+  background: var(--bg-tertiary);
+}
+
+.chat-input::-webkit-scrollbar-thumb {
+  background-color: var(--color-saffron);
+  border-radius: 3px;
+  border: 2px solid var(--bg-tertiary);
+}

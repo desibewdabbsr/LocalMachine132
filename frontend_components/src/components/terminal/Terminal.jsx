@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import './Terminal.css';
 import appConfig from '../../config/appConfig';
+import { executeCommand, getAvailableCommands } from './terminal_commands';
 
 /**
  * Terminal Component
@@ -49,6 +50,7 @@ const Terminal = () => {
   const [command, setCommand] = useState('');
   const [commandHistory, setCommandHistory] = useState([]);
   const [historyIndex, setHistoryIndex] = useState(-1);
+  const [isProcessing, setIsProcessing] = useState(false);
   
   const outputRef = useRef(null);
   const inputRef = useRef(null);
@@ -72,35 +74,42 @@ const Terminal = () => {
   const warningCount = problems.filter(p => p.type === 'warning').length;
   const infoCount = problems.filter(p => p.type === 'info').length;
 
-  // Process command
-  const processCommand = (cmd) => {
+  // Process command using the terminal_commands module
+  const processCommand = async (cmd) => {
+    if (!cmd.trim()) return;
+    
+    setIsProcessing(true);
+    
     // Add command to history
     const newHistory = [...history, { type: 'command', content: `$ ${cmd}` }];
     
-    // Process command (this would be replaced with actual command processing)
-    switch (cmd.toLowerCase()) {
-      case 'help':
-        newHistory.push({ type: 'output', content: 'Available commands: help, clear, version, status' });
-        break;
-      case 'clear':
+    try {
+      // Execute the command
+      const result = await executeCommand(cmd);
+      
+      if (!result) {
+        setHistory(newHistory);
+        return;
+      }
+      
+      if (result.type === 'clear') {
         setHistory([
           { type: 'info', content: `${appConfig.appName} Terminal v${appConfig.version}` },
           { type: 'info', content: 'Type "help" for available commands' },
         ]);
         return;
-      case 'version':
-        newHistory.push({ type: 'output', content: `${appConfig.appName} v${appConfig.version}` });
-        break;
-      case 'status':
-        newHistory.push({ type: 'output', content: 'All systems operational' });
-        break;
-      default:
-        if (cmd.trim()) {
-          newHistory.push({ type: 'error', content: `Command not found: ${cmd}` });
-        }
+      }
+      
+      // Add result to history
+      newHistory.push({ type: result.type, content: result.content });
+      setHistory(newHistory);
+    } catch (error) {
+      console.error('Error processing command:', error);
+      newHistory.push({ type: 'error', content: `Error: ${error.message}` });
+      setHistory(newHistory);
+    } finally {
+      setIsProcessing(false);
     }
-    
-    setHistory(newHistory);
     
     // Add to command history
     if (cmd.trim()) {
@@ -264,7 +273,8 @@ const Terminal = () => {
             value={command}
             onChange={(e) => setCommand(e.target.value)}
             onKeyDown={handleKeyDown}
-            placeholder="Enter command..."
+            placeholder={isProcessing ? "Processing..." : "Enter command..."}
+            disabled={isProcessing}
           />
         </form>
       ) : (

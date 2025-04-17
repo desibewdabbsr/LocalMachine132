@@ -258,14 +258,14 @@ class ApiService {
   }
 
   /**
-   * Get list of generated files
+   * Get list of files
    * @returns {Promise<Array>} List of files
    */
   async getFiles() {
     try {
       const response = await fetch(`${this.baseUrl}/files`);
       const data = await response.json();
-      return data.files || [];
+      return data || [];
     } catch (error) {
       console.error('Error fetching files:', error);
       return [];
@@ -291,11 +291,30 @@ class ApiService {
 
 
 
+  /**
+   * Execute a terminal command
+   * @param {string} command - The command to execute
+   * @returns {Promise<Object>} Command execution result
+   */
+  async executeCommand(command) {
+    try {
+      const response = await fetch(`${this.baseUrl}/terminal/execute`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ command }),
+      });
+      
+      return await response.json();
+    } catch (error) {
+      console.error('Error executing command:', error);
+      return { error: error.message };
+    }
+  }
 
 
-
-
-    /**
+  /**
    * Start Auto-Pilot with project requirements
    * @param {string} requirements - Project requirements
    * @returns {Promise<Object>} Auto-Pilot status

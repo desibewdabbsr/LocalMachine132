@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import Dashboard from './pages/Dashboard';
 import './pages/Dashboard.css';
 import appConfig from './config/appConfig';
+import './styles/colorPalette.css';
 
 function App() {
   useEffect(() => {

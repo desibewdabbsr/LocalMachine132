@@ -27,34 +27,34 @@ def register_routes(app, controllers):
             logger.error(f"Error retrieving models: {str(e)}")
             return jsonify({'error': str(e)}), 500
     
-    @app.route('/api/files', methods=['GET'])
-    def get_files():
-        """Get list of generated files"""
-        try:
-            # Define the repositories directory
-            repositories_path = os.path.join(os.getcwd(), '.Repositories')
+    # @app.route('/api/files', methods=['GET'])
+    # def get_files():
+    #     """Get list of generated files"""
+    #     try:
+    #         # Define the repositories directory
+    #         repositories_path = os.path.join(os.getcwd(), '.Repositories')
             
-            # Get all files in the repositories directory
-            files = []
-            if os.path.exists(repositories_path):
-                for root, dirs, filenames in os.walk(repositories_path):
-                    for filename in filenames:
-                        file_path = os.path.join(root, filename)
-                        rel_path = os.path.relpath(file_path, repositories_path)
-                        files.append({
-                            'path': rel_path,
-                            'name': filename,
-                            'size': os.path.getsize(file_path),
-                            'modified': os.path.getmtime(file_path)
-                        })
+    #         # Get all files in the repositories directory
+    #         files = []
+    #         if os.path.exists(repositories_path):
+    #             for root, dirs, filenames in os.walk(repositories_path):
+    #                 for filename in filenames:
+    #                     file_path = os.path.join(root, filename)
+    #                     rel_path = os.path.relpath(file_path, repositories_path)
+    #                     files.append({
+    #                         'path': rel_path,
+    #                         'name': filename,
+    #                         'size': os.path.getsize(file_path),
+    #                         'modified': os.path.getmtime(file_path)
+    #                     })
             
-            logger.info(f"Retrieved {len(files)} files")
-            return jsonify({
-                'files': files
-            })
-        except Exception as e:
-            logger.error(f"Error retrieving files: {str(e)}")
-            return jsonify({'error': str(e)}), 500
+    #         logger.info(f"Retrieved {len(files)} files")
+    #         return jsonify({
+    #             'files': files
+    #         })
+    #     except Exception as e:
+    #         logger.error(f"Error retrieving files: {str(e)}")
+    #         return jsonify({'error': str(e)}), 500
     
     @app.route('/api/file/<path:file_path>', methods=['GET'])
     def get_file(file_path):

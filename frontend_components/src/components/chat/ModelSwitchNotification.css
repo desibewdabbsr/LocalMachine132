@@ -1,35 +1,49 @@
 .model-switch-notification {
   position: absolute;
-  top: 10px;
+  bottom: 80px;
   left: 50%;
   transform: translateX(-50%);
-  background-color: rgba(27, 27, 27, 0.9);
-  border: 1px solid #FFD700;
-  border-radius: 4px;
-  padding: 8px 16px;
+  background-color: var(--bg-elevated);
+  border: 1px solid var(--border-secondary);
+  border-radius: 8px;
+  padding: 10px 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
   z-index: 100;
-  animation: fadeInOut 2s ease-in-out;
-  box-shadow: 0 0 10px rgba(255, 215, 0, 0.3);
+  animation: slideUp 0.3s ease-out, fadeOut 0.3s ease-out 1.7s forwards;
 }
 
 .notification-content {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
 }
 
 .notification-icon {
   font-size: 18px;
+  color: var(--color-gold);
 }
 
 .notification-text {
-  color: #FFD700;
-  font-weight: 500;
+  color: var(--text-primary);
+  font-weight: bold;
 }
 
-@keyframes fadeInOut {
-  0% { opacity: 0; }
-  20% { opacity: 1; }
-  80% { opacity: 1; }
-  100% { opacity: 0; }
+@keyframes slideUp {
+  from {
+    transform: translate(-50%, 20px);
+    opacity: 0;
+  }
+  to {
+    transform: translate(-50%, 0);
+    opacity: 1;
+  }
+}
+
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
 }

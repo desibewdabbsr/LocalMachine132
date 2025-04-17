@@ -1,0 +1,119 @@
+.file-operations-menu {
+  position: fixed;
+  background-color: #252526;
+  border: 1px solid #3e3e3e;
+  border-radius: 4px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  min-width: 180px;
+  z-index: 1000;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-size: 14px;
+  color: #e6e6e6;
+}
+
+.operations-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.operations-list li {
+  padding: 8px 12px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.operations-list li:hover {
+  background-color: rgba(255, 215, 0, 0.1); /* Gold with low opacity */
+  color: #ffd700; /* Gold */
+}
+
+.rename-form,
+.create-form {
+  padding: 8px;
+}
+
+.rename-input,
+.create-input {
+  width: 100%;
+  padding: 6px 8px;
+  margin-bottom: 8px;
+  background-color: #3c3c3c;
+  border: 1px solid #555;
+  border-radius: 4px;
+  color: #e6e6e6;
+  font-size: 14px;
+}
+
+.rename-input:focus,
+.create-input:focus {
+  outline: none;
+  border-color: #ffd700; /* Gold */
+}
+
+.rename-button,
+.create-button,
+.cancel-button {
+  padding: 6px 12px;
+  margin-right: 8px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  transition: background-color 0.2s;
+}
+
+.rename-button,
+.create-button {
+  background-color: #ffd700; /* Gold */
+  color: #000;
+}
+
+.rename-button:hover,
+.create-button:hover {
+  background-color: #ffcc00; /* Slightly darker gold */
+}
+
+.cancel-button {
+  background-color: #3c3c3c;
+  color: #e6e6e6;
+}
+
+.cancel-button:hover {
+  background-color: #4c4c4c;
+}
+
+.error-message {
+  color: #ff6b6b;
+  padding: 8px 12px;
+  font-size: 12px;
+  border-bottom: 1px solid #3e3e3e;
+}
+
+.create-type-selector {
+  display: flex;
+  margin-bottom: 8px;
+}
+
+.create-type-button {
+  flex: 1;
+  padding: 6px 8px;
+  background-color: #3c3c3c;
+  border: 1px solid #555;
+  color: #e6e6e6;
+  cursor: pointer;
+}
+
+.create-type-button:first-child {
+  border-radius: 4px 0 0 4px;
+}
+
+.create-type-button:last-child {
+  border-radius: 0 4px 4px 0;
+}
+
+.create-type-button.active {
+  background-color: #ffd700; /* Gold */
+  color: #000;
+  border-color: #ffd700;
+}

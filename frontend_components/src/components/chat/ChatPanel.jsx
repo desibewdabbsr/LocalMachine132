@@ -1,8 +1,11 @@
 import React, { useState, useRef, useEffect } from 'react';
 import './ChatPanel.css';
-import apiService from '../../services/apiService';
-import AIResponseFormatter from './AIResponseFormatter';
+import ChatInput from './ChatInput';
+import ChatMessages from './ChatMessages';
+import ChatControls from './ChatControls';
 import ModelSwitchNotification from './ModelSwitchNotification';
+import ChatHistory from './ChatHistory';
+import apiService from '../../services/apiService';
 
 /**
  * ChatPanel Component
@@ -26,7 +29,9 @@ const ChatPanel = () => {
   const [showModelSwitch, setShowModelSwitch] = useState(false);
   const [currentModelName, setCurrentModelName] = useState('auto');
   const [connectionStatus, setConnectionStatus] = useState('connecting');
-  const textareaRef = useRef(null);
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [generationProgress, setGenerationProgress] = useState(0);
+  
   const responsesEndRef = useRef(null);
 
   // Models available for selection - updated to match backend
@@ -36,27 +41,6 @@ const ChatPanel = () => {
     { id: 'D', name: 'Deepseek', apiName: 'deepseek' },
     { id: 'H', name: 'Cohere', apiName: 'cohere' }
   ];
-
-  // Auto-resize textarea based on content
-  useEffect(() => {
-    if (textareaRef.current) {
-      // Reset height to calculate proper scrollHeight
-      textareaRef.current.style.height = 'auto';
-      
-      // Calculate new height based on content
-      const scrollHeight = textareaRef.current.scrollHeight;
-      const maxHeight = window.innerHeight * 0.4; // 40% of viewport height
-      
-      if (scrollHeight > maxHeight) {
-        textareaRef.current.style.height = `${maxHeight}px`;
-        // Only show scrollbar within the textarea itself
-        textareaRef.current.style.overflowY = 'auto';
-      } else {
-        textareaRef.current.style.height = `${scrollHeight}px`;
-        textareaRef.current.style.overflowY = 'hidden';
-      }
-    }
-  }, [message]);
 
   // Scroll to bottom when new responses are added
   useEffect(() => {
@@ -92,12 +76,38 @@ const ChatPanel = () => {
     // Check health every 30 seconds
     const interval = setInterval(checkHealth, 30000);
     
+    // Load chat history
+    loadChatHistory();
+    
     return () => clearInterval(interval);
   }, []);
 
+  // Load chat history from local storage or API
+  const loadChatHistory = async () => {
+    try {
+      // Just load from local storage since the API function doesn't exist
+      const savedHistory = localStorage.getItem('chat-history');
+      if (savedHistory) {
+        setResponses(JSON.parse(savedHistory));
+      }
+    } catch (error) {
+      console.error('Error loading chat history:', error);
+    }
+  };
+
+  // Save chat history to local storage and API
+  const saveChatHistory = (history) => {
+    try {
+      localStorage.setItem('chat-history', JSON.stringify(history));
+      // Remove the API call that doesn't exist
+    } catch (error) {
+      console.error('Error saving chat history:', error);
+    }
+  };
+
   // Handle message change
-  const handleMessageChange = (e) => {
-    setMessage(e.target.value);
+  const handleMessageChange = (newMessage) => {
+    setMessage(newMessage);
   };
 
   // Toggle model dropdown
@@ -140,8 +150,59 @@ const ChatPanel = () => {
     return model ? model.apiName : 'auto';
   };
 
+  // Simulate generation progress
+  const simulateGenerationProgress = () => {
+    setIsGenerating(true);
+    setGenerationProgress(0);
+    
+    const interval = setInterval(() => {
+      setGenerationProgress(prev => {
+        const newProgress = prev + Math.random() * 10;
+        if (newProgress >= 100) {
+          clearInterval(interval);
+          setTimeout(() => {
+            setIsGenerating(false);
+          }, 500);
+          return 100;
+        }
+        return newProgress;
+      });
+    }, 200);
+    
+    return () => clearInterval(interval);
+  };
 
-    const handleSendOrStop = async () => {
+  // Handle opening a code file
+  const handleOpenCodeFile = (fileName, content, language) => {
+    // Create a unique ID for this file
+    const fileTabId = `file-${Date.now()}`;
+
+    // Create the file object to be passed to the editor
+    const fileData = {
+      id: fileTabId,
+      serviceId: 'file-editor',
+      title: fileName,
+      data: {
+        fileId: fileTabId,
+        fileName: fileName,
+        language: language || 'javascript',
+        content: content || ''
+      }
+    };
+
+    // Dispatch a custom event that WorkspaceManager can listen to
+    const openFileEvent = new CustomEvent('LocalMachine132:openFile', {
+      detail: {
+        targetWorkspace: 'workspace2',
+        file: fileData
+      }
+    });
+
+    window.dispatchEvent(openFileEvent);
+  };
+
+  // Handle sending or stopping message processing
+  const handleSendOrStop = async () => {
     if (isProcessing) {
       // Stop processing - would need to implement cancellation logic
       setIsProcessing(false);
@@ -156,7 +217,11 @@ const ChatPanel = () => {
         timestamp: new Date().toISOString()
       };
       
-      setResponses(prev => [...prev, userMessage]);
+      const newResponses = [...responses, userMessage];
+      setResponses(newResponses);
+      
+      // Start generation progress animation
+      const stopSimulation = simulateGenerationProgress();
       
       try {
         let response;
@@ -193,7 +258,8 @@ const ChatPanel = () => {
           timestamp: new Date().toISOString()
         };
         
-        setResponses(prev => [...prev, aiResponse]);
+        const updatedResponses = [...newResponses, aiResponse];
+        setResponses(updatedResponses);
         
         // If we received code, also add it as a separate message
         if (response.code) {
@@ -201,10 +267,20 @@ const ChatPanel = () => {
             type: 'ai',
             content: `\`\`\`\n${response.code}\n\`\`\``,
             model: response.model || modelName,
-            timestamp: new Date().toISOString()
+            timestamp: new Date().toISOString(),
+            isCode: true,
+            fileName: response.fileName || 'generated_code.js',
+            language: response.language || 'javascript'
           };
           
-          setResponses(prev => [...prev, codeResponse]);
+          const finalResponses = [...updatedResponses, codeResponse];
+          setResponses(finalResponses);
+          
+          // Save the updated chat history
+          saveChatHistory(finalResponses);
+        } else {
+          // Save the updated chat history
+          saveChatHistory(updatedResponses);
         }
       } catch (error) {
         console.error('Error processing message:', error);
@@ -217,12 +293,23 @@ const ChatPanel = () => {
           timestamp: new Date().toISOString()
         };
         
-        setResponses(prev => [...prev, errorResponse]);
+        const updatedResponses = [...newResponses, errorResponse];
+        setResponses(updatedResponses);
+        
+        // Save the updated chat history
+        saveChatHistory(updatedResponses);
       } finally {
+        stopSimulation();
         setIsProcessing(false);
         setMessage('');
       }
     }
+  };
+
+  // Clear chat history
+  const clearChatHistory = () => {
+    setResponses([]);
+    saveChatHistory([]);
   };
 
   return (
@@ -235,18 +322,24 @@ const ChatPanel = () => {
       </div>
       
       {/* Chat messages area */}
-      <div className="chat-messages">
-        {responses.map((response, index) => (
-          <div key={index} className={`message ${response.type}`}>
-            {response.type === 'user' ? (
-              <div className="user-message">{response.content}</div>
-            ) : (
-              <AIResponseFormatter response={response.content} model={response.model} />
-            )}
+      <ChatMessages 
+        responses={responses} 
+        onOpenCodeFile={handleOpenCodeFile}
+        responsesEndRef={responsesEndRef}
+      />
+      
+      {/* Generation progress indicator */}
+      {isGenerating && (
+        <div className="generation-progress">
+          <div 
+            className="progress-bar" 
+            style={{ width: `${generationProgress}%` }}
+          ></div>
+          <div className="progress-text">
+            Generating response... {Math.round(generationProgress)}%
           </div>
-        ))}
-        <div ref={responsesEndRef} />
-      </div>
+        </div>
+      )}
       
       {/* Model switch notification */}
       <ModelSwitchNotification 
@@ -256,79 +349,34 @@ const ChatPanel = () => {
       
       <div className="chat-panel">
         {/* Left side controls */}
-        <div className="chat-controls left-controls">
-          {/* Model selection button */}
-          <div className="model-selector">
-            <button 
-              className="control-button model-button" 
-              onClick={toggleModelDropdown}
-              title={models.find(model => model.id === selectedModel).name}
-            >
-              {selectedModel}
-            </button>
-            
-            {showModelDropdown && (
-              <div className="model-dropdown">
-                {models.map(model => (
-                  <div 
-                    key={model.id} 
-                    className={`model-option ${selectedModel === model.id ? 'selected' : ''}`}
-                    onClick={() => selectModel(model.id)}
-                  >
-                    {model.id}: {model.name}
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-          
-          {/* Auto-pilot toggle */}
-          <button 
-            className={`control-button autopilot-button ${isAutoPilot ? 'active' : ''}`}
-            onClick={toggleAutoPilot}
-            title={isAutoPilot ? 'Disable Auto-Pilot' : 'Enable Auto-Pilot'}
-          >
-            ✈️
-          </button>
-        </div>
+        <ChatControls 
+          position="left"
+          selectedModel={selectedModel}
+          models={models}
+          showModelDropdown={showModelDropdown}
+          isAutoPilot={isAutoPilot}
+          onToggleModelDropdown={toggleModelDropdown}
+          onSelectModel={selectModel}
+          onToggleAutoPilot={toggleAutoPilot}
+        />
         
         {/* Chat input area */}
-        {/* Chat input area */}
-        <textarea
-          ref={textareaRef}
-          className="chat-input"
-          value={message}
+        <ChatInput 
+          message={message}
+          isProcessing={isProcessing}
           onChange={handleMessageChange}
-          placeholder="Ask me anything..."
-          rows={1}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter' && !e.shiftKey) {
-              e.preventDefault();
-              handleSendOrStop();
-            }
-          }}
+          onSend={handleSendOrStop}
         />
         
         {/* Right side controls */}
-        <div className="chat-controls right-controls">
-          {/* Voice toggle */}
-          <button 
-            className={`control-button voice-button ${isVoiceEnabled ? 'active' : ''}`}
-            onClick={toggleVoice}
-            title={isVoiceEnabled ? 'Disable AI Voice' : 'Enable AI Voice'}
-          >
-            🔊
-          </button>
-          
-          {/* Send/Stop button */}
-          <button 
-            className={`control-button send-button ${isProcessing ? 'processing' : ''}`}
-            onClick={handleSendOrStop}
-            title={isProcessing ? 'Stop' : 'Send'}
-          >
-            {isProcessing ? '■' : '▶'}
-          </button>
-        </div>
+        <ChatControls 
+          position="right"
+          isVoiceEnabled={isVoiceEnabled}
+          isProcessing={isProcessing}
+          onToggleVoice={toggleVoice}
+          onSendOrStop={handleSendOrStop}
+          onClearHistory={clearChatHistory}
+        />
       </div>
     </div>
   );

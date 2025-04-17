@@ -30,6 +30,40 @@ class CodeGenerator:
 
 
 
+    async def generate_code(self, prompt: str, template_type: str = None) -> str:
+        """
+        Generate code based on the prompt and template type
+        
+        Args:
+            prompt: The prompt describing what code to generate
+            template_type: Optional template type to use
+            
+        Returns:
+            The generated code
+        """
+        self.logger.debug(json.dumps({
+            "message": 'Generating code',
+            "prompt": prompt,
+            "template_type": template_type
+        }))
+        
+        try:
+            # Initialize llama if not already done
+            if not hasattr(self, 'llama_controller'):
+                self.initialize_llama()
+            
+            # Process the request using LlamaController
+            response = await self.llama_controller.process_request(prompt)
+            
+            return response
+        except Exception as e:
+            self.logger.error(json.dumps({
+                "message": 'Code generation failed',
+                "error": str(e)
+            }))
+            raise
+
+
     async def verify_connection(self) -> bool:
         """Verify connection status with Cody services"""
         try:

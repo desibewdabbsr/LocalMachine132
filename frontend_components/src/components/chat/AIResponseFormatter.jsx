@@ -1,70 +1,40 @@
 import React from 'react';
 import './AIResponseFormatter.css';
+import ReactMarkdown from 'react-markdown';
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
+import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
 
 /**
- * AI Response Formatter Component
+ * AIResponseFormatter Component
  * 
- * Formats AI responses with model information and styling
+ * Formats AI responses with markdown and code highlighting
  */
 const AIResponseFormatter = ({ response, model }) => {
-  // Format the model name for display
-  const getModelDisplay = (modelName) => {
-    if (!modelName) return 'AI';
-    
-    // Handle AUTO mode specially
-    if (modelName.toLowerCase() === 'auto') {
-      return 'AUTO';
-    }
-    
-    return modelName.toUpperCase();
-  };
-  
-  // Add emoji based on model
-  const getModelEmoji = (modelName) => {
-    if (!modelName) return '🤖';
-    
-    const model = modelName.toLowerCase();
-    if (model === 'auto') return '🧠';
-    if (model === 'cody') return '👨‍💻';
-    if (model === 'mistral') return '🌪️';
-    if (model === 'deepseek') return '🔍';
-    if (model === 'cohere') return '🧩';
-    if (model === 'llama') return '🦙';
-    
-    return '🤖';
-  };
-  
-  // Format the response content
-  const formatContent = (content) => {
-    if (!content) return '';
-    
-    // Split by newlines to handle paragraphs
-    const paragraphs = content.split('\n');
-    
-    return paragraphs.map((paragraph, index) => {
-      if (!paragraph.trim()) return <br key={index} />;
-      
-      // Check if this is a list item
-      if (paragraph.trim().match(/^\d+\.\s/)) {
-        return <div key={index} className="list-item">{paragraph}</div>;
-      }
-      
-      return <p key={index}>{paragraph}</p>;
-    });
-  };
-  
   return (
     <div className="ai-response">
-      <div className="response-header">
-        <div className="model-indicator">
-          <span className="model-emoji">{getModelEmoji(model)}</span>
-          <span className="model-name">AI ({getModelDisplay(model)})</span>
-        </div>
-      </div>
-      
-      <div className="response-content">
-        {formatContent(response)}
-      </div>
+      <ReactMarkdown
+        components={{
+          code({ node, inline, className, children, ...props }) {
+            const match = /language-(\w+)/.exec(className || '');
+            return !inline && match ? (
+              <SyntaxHighlighter
+                style={vscDarkPlus}
+                language={match[1]}
+                PreTag="div"
+                {...props}
+              >
+                {String(children).replace(/\n$/, '')}
+              </SyntaxHighlighter>
+            ) : (
+              <code className={className} {...props}>
+                {children}
+              </code>
+            );
+          }
+        }}
+      >
+        {response}
+      </ReactMarkdown>
     </div>
   );
 };
