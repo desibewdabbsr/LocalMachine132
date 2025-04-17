@@ -2,7 +2,7 @@
   flex: 1;
   margin: 0 10px;
   padding: 10px 15px;
-  border-radius: 20px;
+  border-radius: 0;  /* Changed to 0 for square corners */
   border: 1px solid var(--border-secondary);
   background-color: var(--bg-tertiary);
   color: var(--text-primary);
@@ -43,6 +43,6 @@
 
 .chat-input::-webkit-scrollbar-thumb {
   background-color: var(--color-saffron);
-  border-radius: 3px;
+  border-radius: 0;  /* Changed to 0 for square corners */
   border: 2px solid var(--bg-tertiary);
 }
