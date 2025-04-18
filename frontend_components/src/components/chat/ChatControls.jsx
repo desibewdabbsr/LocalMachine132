@@ -13,12 +13,10 @@ const ChatControls = ({
   showModelDropdown,
   isAutoPilot,
   isVoiceEnabled,
-  isProcessing,
   onToggleModelDropdown,
   onSelectModel,
   onToggleAutoPilot,
   onToggleVoice,
-  onSendOrStop,
   onClearHistory
 }) => {
   // Render left controls
@@ -62,7 +60,7 @@ const ChatControls = ({
     );
   }
   
-  // Render right controls
+  // Render right controls (without send button)
   return (
     <div className="chat-controls right-controls">
       {/* Clear history button */}
@@ -81,15 +79,6 @@ const ChatControls = ({
         title={isVoiceEnabled ? 'Disable AI Voice' : 'Enable AI Voice'}
       >
         🔊
-      </button>
-      
-      {/* Send/Stop button */}
-      <button 
-        className={`control-button send-button ${isProcessing ? 'processing' : ''}`}
-        onClick={onSendOrStop}
-        title={isProcessing ? 'Stop' : 'Send'}
-      >
-        {isProcessing ? '■' : '▶'}
       </button>
     </div>
   );

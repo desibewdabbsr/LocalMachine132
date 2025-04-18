@@ -372,9 +372,7 @@ const ChatPanel = () => {
         <ChatControls 
           position="right"
           isVoiceEnabled={isVoiceEnabled}
-          isProcessing={isProcessing}
           onToggleVoice={toggleVoice}
-          onSendOrStop={handleSendOrStop}
           onClearHistory={clearChatHistory}
         />
       </div>

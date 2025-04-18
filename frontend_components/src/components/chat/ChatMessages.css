@@ -11,7 +11,7 @@
 .message {
   max-width: 85%;
   border-radius: 8px;
-  padding: 2px;
+  padding: 1px;
   animation: fadeIn 0.3s ease-in-out;
 }
 

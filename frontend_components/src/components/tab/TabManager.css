@@ -1,6 +1,9 @@
 .tab-manager {
   background-color: #444444;
   border-bottom: 1px solid #FFD700;
+  box-sizing: border-box;
+  position: relative; /* For absolute positioning of active indicators */
+  overflow: hidden; /* Prevent overflow from causing layout shifts */
 }
 
 .tab-manager.horizontal {
@@ -68,12 +71,16 @@
 }
 
 .tabs-container.horizontal .workspace-tab {
-  padding: 0 20px;
-  height: 100%;
-  border-bottom: 3px solid transparent;
-  border-right: 1px solid #FFD700; /* Add solid style for right border */
-  min-width: 80px; /* Ensure minimum width for tab content */
+  padding: 0 15px; /* Reduced from 20px to 15px */
+  height: 28px; /* Fixed height to match tab-manager */
+  border-bottom: none; /* Remove bottom border */
+  border-right: 1px solid #FFD700;
+  min-width: 60px; /* Reduced from 80px */
+  position: relative; /* For absolute positioning of the active indicator */
+  display: flex;
+  align-items: center;
 }
+
 
 .tabs-container.horizontal .tab-title {
   white-space: nowrap;
@@ -99,11 +106,7 @@
   min-width: 0; /* This is crucial for text-overflow to work */
 }
 
-.tabs-container.horizontal .workspace-tab.active {
-  color: #FFD700;
-  border-bottom-color: #FF6F00;
-  background-color: rgba(255, 111, 0, 0.1);
-}
+
 
 .tabs-container.vertical .workspace-tab.active {
   color: #FFD700;
@@ -143,4 +146,23 @@
 .tab-close-button:hover {
   color: #F44336; /* Red color on hover */
   background-color: rgba(244, 67, 54, 0.1);
+}
+
+
+
+/* Use pseudo-element for active indicator to prevent layout shifts */
+.tabs-container.horizontal .workspace-tab.active::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 2px; /* Reduced from 3px */
+  background-color: #FF6F00;
+  z-index: 1;
+}
+
+.tabs-container.horizontal .workspace-tab.active {
+  color: #FFD700;
+  background-color: rgba(255, 111, 0, 0.1);
 }

@@ -4,7 +4,7 @@ import './ChatInput.css';
 /**
  * ChatInput Component
  * 
- * Handles the text input area for the chat
+ * Handles the text input area for the chat with integrated send button
  */
 const ChatInput = ({ message, isProcessing, onChange, onSend }) => {
   const textareaRef = useRef(null);
@@ -44,16 +44,27 @@ const ChatInput = ({ message, isProcessing, onChange, onSend }) => {
   };
 
   return (
-    <textarea
-      ref={textareaRef}
-      className="chat-input"
-      value={message}
-      onChange={handleMessageChange}
-      onKeyDown={handleKeyDown}
-      placeholder={isProcessing ? "Processing..." : "Ask me anything..."}
-      disabled={isProcessing}
-      rows={1}
-    />
+    <div className="chat-input-container">
+      <textarea
+        ref={textareaRef}
+        className="chat-input"
+        value={message}
+        onChange={handleMessageChange}
+        onKeyDown={handleKeyDown}
+        placeholder={isProcessing ? "Processing..." : "Ask me anything..."}
+        disabled={isProcessing}
+        rows={1}
+      />
+      
+      {/* Send/Stop button inside the input */}
+      <button 
+        className={`control-button send-button ${isProcessing ? 'processing' : ''}`}
+        onClick={onSend}
+        title={isProcessing ? 'Stop' : 'Send'}
+      >
+        {isProcessing ? '■' : '▶'}
+      </button>
+    </div>
   );
 };
 

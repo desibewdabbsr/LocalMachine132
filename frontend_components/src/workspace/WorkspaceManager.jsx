@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import TabManager from '../components/tab/TabManager';
-import VerticalDivider from '../components/layout/VerticalDivider';
+// import VerticalDivider from '../components/layout/VerticalDivider';
 import workspaceService from '../services/workspaceService';
 import serviceRegistry from '../services/serviceRegistry';
 import './WorkspaceManager.css';
