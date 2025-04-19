@@ -2,29 +2,34 @@ import React, { useState, useEffect } from 'react';
 import './FileBrowser.css';
 import FileTreeView from './FileTreeView';
 import FileOperations from './FileOperations';
-import { getFileIcon } from './file_utils';
 import apiService from '../../services/apiService';
 import mockFileSystem from '../../data/mockFileSystem';
 
 /**
  * FileBrowser Component
  * 
- * A file explorer similar to VS Code's Explorer panel
- * Shows the project structure for LocalMachine132
+ * A file explorer for the .Repositories directory
  */
 const FileBrowser = ({ instanceId }) => {
   const [files, setFiles] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [expandedFolders, setExpandedFolders] = useState({});
-  const [repositoryName, setRepositoryName] = useState('LocalMachine132');
-  const [viewMode, setViewMode] = useState('tree'); // 'tree' or 'files'
   const [contextMenu, setContextMenu] = useState({
     visible: false,
     position: null,
     item: null
   });
   const [error, setError] = useState(null);
-  const [useTestData, setUseTestData] = useState(true); // Toggle for using mock data
+  const [useTestData, setUseTestData] = useState(false);
+  const [showCreateProjectDialog, setShowCreateProjectDialog] = useState(false);
+  const [newProjectName, setNewProjectName] = useState('');
+  const [projectDescription, setProjectDescription] = useState('');
+
+  // Toggle between test data and real API
+  const toggleDataSource = () => {
+    setUseTestData(prev => !prev);
+    loadFiles();
+  };
 
   // Load the project structure
   const loadFiles = async () => {
@@ -32,19 +37,19 @@ const FileBrowser = ({ instanceId }) => {
     setError(null);
     
     try {
-      // Use mock data for testing or real API for production
       if (useTestData) {
-        // Simulate API delay
         setTimeout(() => {
           setFiles(mockFileSystem);
           setIsLoading(false);
           
-          // Auto-expand the repository root and some key folders
-          setExpandedFolders({ 
-            'repo-root': true,
-            'folder-projects': true,
-            'folder-localmachine132': true
+          // Auto-expand all project folders
+          const expanded = { 'repo-root': true };
+          mockFileSystem.forEach(item => {
+            if (item.type === 'folder') {
+              expanded[item.id] = true;
+            }
           });
+          setExpandedFolders(expanded);
         }, 500);
       } else {
         const response = await apiService.getFiles();
@@ -52,11 +57,14 @@ const FileBrowser = ({ instanceId }) => {
         
         setFiles(response);
         
-        // Auto-expand the repository root
-        setExpandedFolders(prev => ({ 
-          ...prev,
-          'repo-root': true 
-        }));
+        // Auto-expand all project folders
+        const expanded = { 'repo-root': true };
+        response.forEach(item => {
+          if (item.type === 'folder') {
+            expanded[item.id] = true;
+          }
+        });
+        setExpandedFolders(expanded);
         
         setIsLoading(false);
       }
@@ -72,16 +80,14 @@ const FileBrowser = ({ instanceId }) => {
     loadFiles();
   }, []);
 
-  // Toggle view mode between tree and files
-  const toggleViewMode = () => {
-    setViewMode(prev => prev === 'tree' ? 'files' : 'tree');
-  };
-
-  // Toggle folder expansion
+  // Toggle folder expansion (only for project subfolders, not for .Repositories)
   const toggleFolder = (folderId, event) => {
     if (event) {
       event.stopPropagation();
     }
+    
+    // Don't toggle repo-root
+    if (folderId === 'repo-root') return;
     
     setExpandedFolders(prev => ({
       ...prev,
@@ -89,17 +95,8 @@ const FileBrowser = ({ instanceId }) => {
     }));
   };
 
-  // Toggle repository collapse/expand
-  const toggleRepository = () => {
-    setExpandedFolders(prev => ({
-      ...prev,
-      'repo-root': !prev['repo-root']
-    }));
-  };
-
   // Open file in workspace2
   const openFileInWorkspace = (fileId) => {
-    // Find the file in our file structure
     const findFile = (files) => {
       for (const file of files) {
         if (file.id === fileId) return file;
@@ -131,7 +128,7 @@ const FileBrowser = ({ instanceId }) => {
         fileId: file.id,
         fileName: file.name,
         language: file.language,
-        content: file.content || '' // Ensure content is never undefined
+        content: file.content || ''
       }
     };
 
@@ -171,24 +168,38 @@ const FileBrowser = ({ instanceId }) => {
     loadFiles();
   };
 
-  // Handle collapse all
-  const handleCollapseAll = () => {
-    setExpandedFolders({ 'repo-root': true });
+  // Show create project dialog
+  const handleCreateProject = () => {
+    setShowCreateProjectDialog(true);
   };
 
-  // Create new file
-  const handleNewFile = () => {
-    setContextMenu({
-      visible: true,
-      position: { x: 100, y: 100 }, // Position near the top of the explorer
-      item: { id: 'repo-root', name: repositoryName, type: 'folder', path: '.' }
-    });
-  };
-
-  // Toggle between test data and real API
-  const toggleDataSource = () => {
-    setUseTestData(prev => !prev);
-    loadFiles();
+  // Handle create project submission
+  const handleCreateProjectSubmit = async (e) => {
+    e.preventDefault();
+    
+    if (!newProjectName.trim()) {
+      return;
+    }
+    
+    try {
+      const result = await apiService.createProject(newProjectName, projectDescription);
+      
+      if (result.status === 'success') {
+        console.log('Project created:', result);
+        // Refresh file list
+        await loadFiles();
+        
+        // Reset form
+        setNewProjectName('');
+        setProjectDescription('');
+        setShowCreateProjectDialog(false);
+      } else {
+        setError(`Failed to create project: ${result.error}`);
+      }
+    } catch (error) {
+      console.error('Error creating project:', error);
+      setError(`Failed to create project: ${error.message}`);
+    }
   };
 
   return (
@@ -196,19 +207,13 @@ const FileBrowser = ({ instanceId }) => {
       <div className="explorer-header">
         <div className="explorer-title">EXPLORER</div>
         <div className="explorer-controls">
+          {/* Create Project button in header */}
           <button 
             className="explorer-control-button" 
-            onClick={toggleViewMode}
-            title={viewMode === 'tree' ? 'Switch to Files view' : 'Switch to Tree view'}
+            onClick={handleCreateProject}
+            title="Create Project"
           >
-            {viewMode === 'tree' ? '🌲' : '📁'}
-          </button>
-          <button 
-            className="explorer-control-button" 
-            onClick={handleNewFile}
-            title="New File"
-          >
-            📝
+            📁+
           </button>
           <button 
             className="explorer-control-button" 
@@ -219,17 +224,10 @@ const FileBrowser = ({ instanceId }) => {
           </button>
           <button 
             className="explorer-control-button" 
-            onClick={handleCollapseAll}
-            title="Collapse All"
-          >
-            ⬆️
-          </button>
-          <button 
-            className="explorer-control-button" 
             onClick={toggleDataSource}
             title={useTestData ? "Switch to API data" : "Switch to test data"}
           >
-            {useTestData ? "🧪" : "🌐"}
+            {useTestData ? "🌐" : "🧪"}
           </button>
         </div>
       </div>
@@ -239,42 +237,41 @@ const FileBrowser = ({ instanceId }) => {
           <div className="loading-message">Loading files...</div>
         ) : error ? (
           <div className="error-message">{error}</div>
-        ) : files.length === 0 ? (
-          <div className="empty-state">
-            <div className="empty-state-icon">📁</div>
-            <div className="empty-state-message">No files found</div>
-            <button 
-              className="empty-state-button"
-              onClick={handleNewFile}
-            >
-              Create New File
-            </button>
-          </div>
         ) : (
-          <div className="repository-root">
-            <div 
-              className={`repository-header ${expandedFolders['repo-root'] ? 'expanded' : ''}`}
-              onClick={toggleRepository}
-            >
-              <span className="collapse-icon">{expandedFolders['repo-root'] ? '▼' : '►'}</span>
-              <span className="repository-name">{repositoryName}</span>
-            </div>
-            
-            {expandedFolders['repo-root'] && (
-              <div className="repository-files">
-                <FileTreeView 
-                  files={files}
-                  expandedFolders={expandedFolders}
-                  onToggleFolder={toggleFolder}
-                  onFileSelect={openFileInWorkspace}
-                  onContextMenu={handleContextMenu}
-                />
+          <>
+            {/* Project list */}
+            {files.length === 0 ? (
+              <div className="empty-state">
+                <div className="empty-state-icon">📁</div>
+                <div className="empty-state-message">No projects found</div>
+                <button 
+                  className="empty-state-button"
+                  onClick={handleCreateProject}
+                >
+                  Create New Project
+                </button>
+              </div>
+            ) : (
+              <div className="projects-list">
+                <div className="projects-header">
+                  <span className="projects-title">PROJECTS</span>
+                </div>
+                <div className="projects-container">
+                  <FileTreeView 
+                    files={files}
+                    expandedFolders={expandedFolders}
+                    onToggleFolder={toggleFolder}
+                    onFileSelect={openFileInWorkspace}
+                    onContextMenu={handleContextMenu}
+                  />
+                </div>
               </div>
             )}
-          </div>
+          </>
         )}
       </div>
       
+      {/* Context menu */}
       {contextMenu.visible && (
         <FileOperations 
           contextMenuPosition={contextMenu.position}
@@ -282,6 +279,60 @@ const FileBrowser = ({ instanceId }) => {
           onClose={closeContextMenu}
           onRefresh={loadFiles}
         />
+      )}
+      
+      {/* Create project dialog */}
+      {showCreateProjectDialog && (
+        <div className="create-project-dialog">
+          <div className="dialog-header">
+            <h3>Create New Project</h3>
+            <button 
+              className="close-button"
+              onClick={() => setShowCreateProjectDialog(false)}
+            >
+              ✕
+            </button>
+          </div>
+          <form onSubmit={handleCreateProjectSubmit}>
+            <div className="form-group">
+              <label htmlFor="project-name">Project Name:</label>
+              <input 
+                type="text" 
+                id="project-name" 
+                value={newProjectName}
+                onChange={(e) => setNewProjectName(e.target.value)}
+                placeholder="Enter project name"
+                autoFocus
+              />
+            </div>
+            <div className="form-group">
+              <label htmlFor="project-description">Description (optional):</label>
+              <textarea 
+                id="project-description" 
+                value={projectDescription}
+                onChange={(e) => setProjectDescription(e.target.value)}
+                placeholder="Enter project description"
+                rows="3"
+              />
+            </div>
+            <div className="form-actions">
+              <button 
+                type="button" 
+                className="cancel-button"
+                onClick={() => setShowCreateProjectDialog(false)}
+              >
+                Cancel
+              </button>
+              <button 
+                type="submit" 
+                className="create-button"
+                disabled={!newProjectName.trim()}
+              >
+                Create
+              </button>
+            </div>
+          </form>
+        </div>
       )}
     </div>
   );

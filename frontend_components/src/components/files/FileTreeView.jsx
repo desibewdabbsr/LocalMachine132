@@ -72,8 +72,12 @@ const FileTreeView = ({
 
   return (
     <div className="file-tree-view">
-      {files.map((item, index) => 
-        renderItem(item, 0, index === files.length - 1)
+      {files && files.length > 0 ? (
+        files.map((item, index) => 
+          renderItem(item, 0, index === files.length - 1)
+        )
+      ) : (
+        <div className="empty-folder-message">Folder is empty</div>
       )}
     </div>
   );

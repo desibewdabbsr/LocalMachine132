@@ -23,7 +23,10 @@ const FileOperations = ({
   const menuRef = useRef(null);
   const renameInputRef = useRef(null);
   const createInputRef = useRef(null);
-  
+  // Add this function to the FileBrowser component:
+
+
+
   // Set initial name when selected item changes
   useEffect(() => {
     if (selectedItem) {
@@ -65,6 +68,13 @@ const FileOperations = ({
     }
     
     try {
+      // Check if apiService.renameFile exists
+      if (typeof apiService.renameFile !== 'function') {
+        console.error('apiService.renameFile is not a function');
+        setError('Rename functionality is not available');
+        return;
+      }
+      
       await apiService.renameFile(selectedItem.path, newName);
       setIsRenaming(false);
       onRefresh();
@@ -74,7 +84,10 @@ const FileOperations = ({
     }
   };
   
-  // Handle create
+
+
+  // Update the handleCreate function in FileOperations.jsx
+
   const handleCreate = async (e) => {
     e.preventDefault();
     
@@ -85,13 +98,37 @@ const FileOperations = ({
     
     try {
       if (createType === 'file') {
-        await apiService.createFile(selectedItem.path, createName);
+        // Make sure we're creating a file inside a project, not at the root
+        if (selectedItem.path === '.') {
+          setError('Files can only be created inside projects');
+          return;
+        }
+        
+        const result = await apiService.createFile(selectedItem.path, createName);
+        if (result.status === 'success') {
+          setIsCreating(false);
+          onRefresh();
+          onClose();
+        } else {
+          setError(`Create failed: ${result.error}`);
+        }
       } else {
-        await apiService.createFolder(selectedItem.path, createName);
+        // For folders, use the project creation API if at root level
+        if (selectedItem.path === '.') {
+          const result = await apiService.createProject(createName);
+          if (result.status === 'success') {
+            setIsCreating(false);
+            onRefresh();
+            onClose();
+          } else {
+            setError(`Create failed: ${result.error}`);
+          }
+        } else {
+          // For subfolders, we'd need a different API endpoint
+          // This is not implemented in the backend yet
+          setError('Creating subfolders is not supported yet');
+        }
       }
-      setIsCreating(false);
-      onRefresh();
-      onClose();
     } catch (error) {
       setError(`Create failed: ${error.message}`);
     }
@@ -104,6 +141,13 @@ const FileOperations = ({
     }
     
     try {
+      // Check if apiService.deleteFile exists
+      if (typeof apiService.deleteFile !== 'function') {
+        console.error('apiService.deleteFile is not a function');
+        setError('Delete functionality is not available');
+        return;
+      }
+      
       await apiService.deleteFile(selectedItem.path);
       onRefresh();
       onClose();
@@ -111,6 +155,9 @@ const FileOperations = ({
       setError(`Delete failed: ${error.message}`);
     }
   };
+
+
+
   
   // Handle copy path
   const handleCopyPath = () => {
@@ -119,7 +166,7 @@ const FileOperations = ({
         onClose();
       })
       .catch(err => {
-        setError(`Copy failed: ${err.message}`);
+                setError(`Copy failed: ${err.message}`);
       });
   };
   

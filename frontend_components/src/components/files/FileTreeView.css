@@ -1,80 +1,46 @@
 .file-tree-view {
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  font-size: 14px;
-  color: #e6e6e6;
-  user-select: none;
-  overflow: auto;
-  height: 100%;
+  font-size: 13px;
 }
 
 .tree-item-container {
-  width: 100%;
+  margin: 1px 0;
 }
 
 .file-item {
   display: flex;
   align-items: center;
-  padding: 4px 8px;
+  padding: 3px 8px;
   cursor: pointer;
+  border-radius: 3px;
   white-space: nowrap;
-  border-radius: 4px;
-  transition: background-color 0.2s;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .file-item:hover {
-  background-color: rgba(255, 215, 0, 0.1); /* Gold with low opacity */
-}
-
-.file-item.selected {
-  background-color: rgba(255, 215, 0, 0.2); /* Gold with medium opacity */
+  background-color: var(--bg-hover, #2a2a2a);
 }
 
 .folder-toggle {
   width: 16px;
-  display: inline-block;
-  text-align: center;
-  margin-right: 4px;
-  color: #ffd700; /* Gold */
+  display: inline-flex;
+  justify-content: center;
+  color: var(--text-secondary, #a0a0a0);
 }
 
-.folder-icon {
+.folder-icon, .file-icon {
   margin-right: 6px;
-}
-
-.file-icon {
-  margin-right: 6px;
-  min-width: 16px;
-  text-align: center;
 }
 
 .file-name {
   overflow: hidden;
   text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.folder.expanded > .folder-icon {
-  color: #ffd700; /* Gold */
 }
 
 .folder-children {
   margin-left: 0;
 }
 
-/* Custom scrollbar */
-.file-tree-view::-webkit-scrollbar {
-  width: 8px;
-}
-
-.file-tree-view::-webkit-scrollbar-track {
-  background: #1e1e1e;
-}
-
-.file-tree-view::-webkit-scrollbar-thumb {
-  background: #3e3e3e;
-  border-radius: 4px;
-}
-
-.file-tree-view::-webkit-scrollbar-thumb:hover {
-  background: #ffd700; /* Gold */
+.file-item.folder.expanded {
+  background-color: var(--bg-selected, #37373d);
 }

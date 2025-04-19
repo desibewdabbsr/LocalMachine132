@@ -1,0 +1,26 @@
+.generation-progress {
+  position: absolute;
+  bottom: 100%;
+  left: 0;
+  right: 0;
+  height: 24px;
+  background-color: var(--bg-secondary);
+  display: flex;
+  align-items: center;
+  padding: 0 10px;
+  font-size: 12px;
+}
+
+.progress-bar {
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 2px;
+  background-color: var(--color-saffron);
+  transition: width 0.2s ease-in-out;
+}
+
+.progress-text {
+  margin-left: 10px;
+  color: var(--text-secondary);
+}

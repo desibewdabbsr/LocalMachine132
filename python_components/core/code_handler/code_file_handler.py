@@ -5,6 +5,9 @@ from datetime import datetime
 import logging
 from typing import Dict, Any, Optional, Tuple, List
 
+# Import the ProjectNameManager
+from .project_name_manager import ProjectNameManager
+
 # Set up logging
 logger = logging.getLogger(__name__)
 
@@ -118,14 +121,9 @@ class LanguageDetector:
         
         return default_language, default_extension
 
-
-
-
-
-
 class FileNameGenerator:
     """
-    Specialized class for generating meaningful file and project names
+    Specialized class for generating meaningful file names
     """
     
     def __init__(self, language_detector: LanguageDetector):
@@ -169,36 +167,7 @@ class FileNameGenerator:
             return self.language_detector.get_default_filename(language)
         
         # Fallback to a generic name
-        return "generated_code"    
-
-
-    def generate_project_name(self, prompt: Optional[str], language: str, code_name: Optional[str] = None) -> str:
-        """
-        Generate a project name based on the prompt, language and code name.
-        
-        Args:
-            prompt: The original prompt that generated the code
-            language: The detected programming language
-            code_name: The extracted name from the code (optional)
-            
-        Returns:
-            A project name
-        """
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        
-        # If we have a code name (like a contract name), include it in the project name
-        if code_name:
-            return f"{code_name}_{language}_{timestamp}"
-        
-        if prompt and len(prompt) > 0:
-            # Use the first few words of the prompt for the directory name
-            prompt_words = prompt.split()[:3]
-            dir_prefix = '_'.join(prompt_words).lower()
-            # Remove special characters
-            dir_prefix = re.sub(r'[^a-z0-9_]', '', dir_prefix)
-            return f"{dir_prefix}_{language}_{timestamp}"
-        else:
-            return f"{language}_project_{timestamp}"
+        return "generated_code"
 
 class CodeFileHandler:
     """
@@ -216,6 +185,7 @@ class CodeFileHandler:
         self.base_dir = Path(base_dir)
         self.language_detector = LanguageDetector()
         self.name_generator = FileNameGenerator(self.language_detector)
+        self.project_manager = ProjectNameManager(base_dir)  # Use the ProjectNameManager
         self.ensure_base_dir_exists()
     
     def ensure_base_dir_exists(self) -> None:
@@ -227,9 +197,6 @@ class CodeFileHandler:
             logger.error(f"Error creating base directory {self.base_dir}: {str(e)}")
             raise
     
-
-
-
     def create_file_for_code(self, code_content: str, prompt: Optional[str] = None) -> Dict[str, Any]:
         """
         Create a file for the generated code with appropriate directory structure.
@@ -348,15 +315,13 @@ class CodeFileHandler:
                     'error': f"{str(e)}; Fallback error: {str(e2)}"
                 }
     
-
-
     def _create_single_file(self, code_content: str, language: str, file_ext: str, prompt: Optional[str] = None) -> Dict[str, Any]:
         """Helper method to create a single code file"""
         # Extract name from code
         name_base = self.name_generator.extract_name_from_code(code_content, language)
         
-        # Generate project name using the extracted code name
-        project_name = self.name_generator.generate_project_name(prompt, language, name_base)
+        # Generate project name using the ProjectNameManager
+        project_name = self.project_manager.generate_project_name(prompt, language, name_base)
         dir_path = self.base_dir / project_name
         
         # Create the directory
@@ -399,8 +364,6 @@ class CodeFileHandler:
             'project_name': project_name
         }
     
-
-
     def create_project_manually(self, project_name: str, description: Optional[str] = None) -> Dict[str, Any]:
         """
         Create a project directory manually with a README.
@@ -412,42 +375,8 @@ class CodeFileHandler:
         Returns:
             Dict with project information
         """
-        try:
-            # Sanitize project name
-            sanitized_name = re.sub(r'[^a-zA-Z0-9_-]', '_', project_name)
-            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-            
-            # Create unique project directory
-            dir_path = self.base_dir / f"{sanitized_name}_{timestamp}"
-            dir_path.mkdir(parents=True, exist_ok=True)
-            
-            # Create README.md
-            readme_path = dir_path / "README.md"
-            with open(readme_path, 'w') as f:
-                f.write(f"# {project_name}\n\n")
-                f.write(f"Created on: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n\n")
-                
-                if description:
-                    f.write(f"## Description\n\n")
-                    f.write(f"{description}\n\n")
-                
-                f.write(f"## Files\n\n")
-                f.write(f"*No files yet*\n")
-            
-            logger.info(f"Created manual project: {dir_path}")
-            
-            return {
-                'status': 'success',
-                'dir_path': str(dir_path),
-                'project_name': sanitized_name,
-                'readme_path': str(readme_path)
-            }
-        except Exception as e:
-            logger.error(f"Error creating manual project: {str(e)}")
-            return {
-                'status': 'error',
-                'error': str(e)
-            }
+        # Use the ProjectNameManager to register the user project
+        return self.project_manager.register_user_project(project_name, description)
     
     def add_file_to_project(self, project_path: str, file_name: str, content: str) -> Dict[str, Any]:
         """
@@ -537,42 +466,5 @@ class CodeFileHandler:
         Returns:
             List of project information dictionaries
         """
-        try:
-            projects = []
-            
-            # Iterate through directories in the base directory
-            for item in self.base_dir.iterdir():
-                if item.is_dir():
-                    # Get project info
-                    readme_path = item.joinpath("README.md")
-                    description = ""
-                    
-                    # Extract description from README if it exists
-                    if readme_path.exists():
-                        with open(readme_path, 'r') as f:
-                            readme_content = f.read()
-                            
-                            # Try to extract description
-                            desc_match = re.search(r'## Description\n\n(.*?)(?=\n\n##|\Z)', readme_content, re.DOTALL)
-                            if desc_match:
-                                description = desc_match.group(1).strip()
-                    
-                    # Count files in the project
-                    file_count = sum(1 for _ in item.glob('*') if _.is_file() and _.name != "README.md")
-                    
-                    # Add project info to the list
-                    projects.append({
-                        'name': item.name,
-                        'path': str(item),
-                        'description': description,
-                        'file_count': file_count,
-                        'created': datetime.fromtimestamp(item.stat().st_ctime).isoformat()
-                    })
-            
-            # Sort projects by creation time (newest first)
-            projects.sort(key=lambda x: x['created'], reverse=True)
-            
-            return projects
-        except Exception as e:
-            logger.error(f"Error listing projects: {str(e)}")
-            return []
+        # Use the ProjectNameManager to get all projects
+        return self.project_manager.get_all_projects()

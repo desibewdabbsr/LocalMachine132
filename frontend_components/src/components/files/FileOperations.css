@@ -1,119 +1,87 @@
 .file-operations-menu {
   position: fixed;
-  background-color: #252526;
-  border: 1px solid #3e3e3e;
-  border-radius: 4px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-  min-width: 180px;
+  background-color: var(--bg-secondary, #252526);
+  border: 1px solid var(--border-color, #333);
+  border-radius: 3px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
   z-index: 1000;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  font-size: 14px;
-  color: #e6e6e6;
+  min-width: 180px;
+  font-size: 13px;
 }
 
 .operations-list {
   list-style: none;
-  padding: 0;
+  padding: 4px 0;
   margin: 0;
 }
 
 .operations-list li {
-  padding: 8px 12px;
+  padding: 6px 12px;
   cursor: pointer;
-  transition: background-color 0.2s;
 }
 
 .operations-list li:hover {
-  background-color: rgba(255, 215, 0, 0.1); /* Gold with low opacity */
-  color: #ffd700; /* Gold */
+  background-color: var(--bg-hover, #2a2a2a);
 }
 
-.rename-form,
-.create-form {
+.rename-form, .create-form {
   padding: 8px;
 }
 
-.rename-input,
-.create-input {
+.rename-input, .create-input {
   width: 100%;
-  padding: 6px 8px;
+  padding: 6px;
   margin-bottom: 8px;
-  background-color: #3c3c3c;
-  border: 1px solid #555;
-  border-radius: 4px;
-  color: #e6e6e6;
-  font-size: 14px;
+  background-color: var(--bg-dark, #1e1e1e);
+  border: 1px solid var(--border-color, #333);
+  color: var(--text-primary, #e6e6e6);
+  border-radius: 3px;
 }
 
-.rename-input:focus,
-.create-input:focus {
-  outline: none;
-  border-color: #ffd700; /* Gold */
-}
-
-.rename-button,
-.create-button,
-.cancel-button {
-  padding: 6px 12px;
-  margin-right: 8px;
+.rename-button, .create-button {
+  background-color: var(--color-primary, #0e639c);
+  color: white;
   border: none;
-  border-radius: 4px;
+  padding: 4px 8px;
+  border-radius: 3px;
   cursor: pointer;
-  font-size: 12px;
-  transition: background-color 0.2s;
-}
-
-.rename-button,
-.create-button {
-  background-color: #ffd700; /* Gold */
-  color: #000;
-}
-
-.rename-button:hover,
-.create-button:hover {
-  background-color: #ffcc00; /* Slightly darker gold */
+  margin-right: 4px;
 }
 
 .cancel-button {
-  background-color: #3c3c3c;
-  color: #e6e6e6;
-}
-
-.cancel-button:hover {
-  background-color: #4c4c4c;
-}
-
-.error-message {
-  color: #ff6b6b;
-  padding: 8px 12px;
-  font-size: 12px;
-  border-bottom: 1px solid #3e3e3e;
+  background-color: transparent;
+  border: 1px solid var(--border-color, #333);
+  color: var(--text-primary, #e6e6e6);
+  padding: 4px 8px;
+  border-radius: 3px;
+  cursor: pointer;
 }
 
 .create-type-selector {
   display: flex;
   margin-bottom: 8px;
+  border: 1px solid var(--border-color, #333);
+  border-radius: 3px;
+  overflow: hidden;
 }
 
 .create-type-button {
   flex: 1;
-  padding: 6px 8px;
-  background-color: #3c3c3c;
-  border: 1px solid #555;
-  color: #e6e6e6;
+  background-color: var(--bg-dark, #1e1e1e);
+  color: var(--text-primary, #e6e6e6);
+  border: none;
+  padding: 4px 8px;
   cursor: pointer;
 }
 
-.create-type-button:first-child {
-  border-radius: 4px 0 0 4px;
-}
-
-.create-type-button:last-child {
-  border-radius: 0 4px 4px 0;
-}
-
 .create-type-button.active {
-  background-color: #ffd700; /* Gold */
-  color: #000;
-  border-color: #ffd700;
+  background-color: var(--color-primary, #0e639c);
+  color: white;
+}
+
+.error-message {
+  color: var(--color-error, #f48771);
+  padding: 8px;
+  font-size: 12px;
+  border-bottom: 1px solid var(--border-color, #333);
 }

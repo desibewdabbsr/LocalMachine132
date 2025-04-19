@@ -83,3 +83,34 @@ def register_routes(app, controllers):
         except Exception as e:
             logger.error(f"Error retrieving file {file_path}: {str(e)}")
             return jsonify({'error': str(e)}), 500
+        
+
+
+
+    @app.route('/api/project/create', methods=['POST'])
+    def create_project():
+        """Create a new project using CodeFileHandler"""
+        try:
+            data = request.json
+            project_name = data.get('project_name', '')
+            description = data.get('description', '')
+            
+            if not project_name:
+                return jsonify({'status': 'error', 'error': 'No project name provided'}), 400
+            
+            # Import CodeFileHandler
+            from python_components.core.code_handler.code_file_handler import CodeFileHandler
+            
+            # Create project
+            code_handler = CodeFileHandler()
+            result = code_handler.create_project_manually(project_name, description)
+            
+            if result.get('status') == 'success':
+                logger.info(f"Created project: {result.get('project_name')}")
+                return jsonify(result)
+            else:
+                logger.error(f"Error creating project: {result.get('error')}")
+                return jsonify(result), 500
+        except Exception as e:
+            logger.error(f"Error creating project: {str(e)}")
+            return jsonify({'status': 'error', 'error': str(e)}), 500
