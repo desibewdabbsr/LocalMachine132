@@ -82,7 +82,10 @@ class ApiService {
     }
   }
 
-  /**
+
+
+
+    /**
    * Process a message with an AI model
    * @param {string} message - The message to process
    * @param {string} model - The model to use (default: 'auto')
@@ -92,20 +95,13 @@ class ApiService {
     try {
       console.log(`Processing message with model: ${model}`);
       
-      // Add a timeout to the fetch request
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
-      
       const response = await fetch(`${this.baseUrl}/process`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ message, model }),
-        signal: controller.signal
+        body: JSON.stringify({ message, model })
       });
-      
-      clearTimeout(timeoutId);
       
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
@@ -122,9 +118,7 @@ class ApiService {
       console.error(`Error processing message with ${model}:`, error);
       
       // Check if it's a network error
-      if (error.name === 'AbortError') {
-        return { error: 'Request timed out. The server took too long to respond.' };
-      } else if (error.message.includes('Failed to fetch') || error.message.includes('NetworkError')) {
+      if (error.message.includes('Failed to fetch') || error.message.includes('NetworkError')) {
         return { error: 'Network error. Please check if the server is running.' };
       }
       

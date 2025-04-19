@@ -1,6 +1,7 @@
 import logging
 import random
 from typing import Dict, Any, List
+import asyncio
 
 class AutoController:
     """
@@ -15,6 +16,7 @@ class AutoController:
         self.initialized = True
         self.logger = logging.getLogger(__name__)
         self.last_model = None
+        self.fallback_attempts = {}  # Track fallback attempts
         
         # Define model specialties for intelligent routing
         self.specialties = {
@@ -36,7 +38,7 @@ class AutoController:
         self.logger.info("Auto Controller initialized successfully")
     
     async def process_command(self, message: str) -> str:
-        """Process a command using the most appropriate AI model"""
+        """Process a command using the most appropriate AI model with fallback"""
         model = self._select_model(message)
         self.logger.info(f"Auto mode selected {model} for processing")
         
@@ -49,9 +51,25 @@ class AutoController:
             # Use Mistral with the enhanced context
             controller = self.controllers.get(model)
             enhanced_prompt = f"Here is current information: {current_info}\n\nNow answer: {message}"
-            return await controller.process_command(enhanced_prompt)
+            
+            try:
+                response = await controller.process_command(enhanced_prompt)
+                
+                # Store the last used model
+                self.last_model = model
+                
+                # Return response with model information
+                return f"[Model: llama with cohere enhancement] {response}"
+            except Exception as e:
+                self.logger.error(f"Error using {model} with enhancement: {str(e)}")
+                # Fall back to Cohere directly
+                return await self._try_fallback(message, model, ['cohere'])
         
-        # Standard processing
+        # Standard processing with fallback
+        return await self._process_with_fallback(message, model)
+    
+    async def _process_with_fallback(self, message: str, model: str) -> str:
+        """Process a message with the selected model, falling back to others if it fails"""
         controller = self.controllers.get(model)
         if not controller:
             self.logger.error(f"Selected model {model} not available")
@@ -60,8 +78,55 @@ class AutoController:
         # Store the last used model
         self.last_model = model
         
-        # Process with the selected model
-        return await controller.process_command(message)
+        try:
+            # Process with the selected model
+            response = await controller.process_command(message)
+            
+            # Reset fallback attempts for this model
+            self.fallback_attempts[model] = 0
+            
+            # Return response with model information
+            return f"[Model: {model}] {response}"
+        except Exception as e:
+            self.logger.error(f"Error processing with {model}: {str(e)}")
+            
+            # Try fallback models
+            available_models = list(self.controllers.keys())
+            fallback_models = [m for m in available_models if m != model]
+            
+            return await self._try_fallback(message, model, fallback_models)
+    
+    async def _try_fallback(self, message: str, original_model: str, fallback_models: List[str]) -> str:
+        """Try fallback models when the primary model fails"""
+        if not fallback_models:
+            return f"[Model: system] All models failed to process your request. Please try again later."
+        
+        # Increment fallback attempts for the original model
+        self.fallback_attempts[original_model] = self.fallback_attempts.get(original_model, 0) + 1
+        
+        # Log the fallback
+        self.logger.info(f"Falling back from {original_model} to {fallback_models} (attempt {self.fallback_attempts[original_model]})")
+        
+        # Try each fallback model
+        for fallback_model in fallback_models:
+            controller = self.controllers.get(fallback_model)
+            if not controller:
+                continue
+                
+            try:
+                # Process with the fallback model
+                response = await controller.process_command(message)
+                
+                # Store the last used model
+                self.last_model = fallback_model
+                
+                # Return response with model information
+                return f"[Model: {fallback_model} (fallback from {original_model})] {response}"
+            except Exception as e:
+                self.logger.error(f"Error processing with fallback model {fallback_model}: {str(e)}")
+        
+        # If all fallbacks fail
+        return f"[Model: system] All models failed to process your request. Please try again later."
     
     async def process_message(self, message: str) -> Dict[str, Any]:
         """Process a message and return a structured response"""
@@ -78,10 +143,29 @@ class AutoController:
             # Use Mistral with the enhanced context
             controller = self.controllers.get(model)
             enhanced_prompt = f"Here is current information: {current_info}\n\nNow answer: {message}"
-            response = await controller.process_message(enhanced_prompt)
-            return {"content": response.get("content", ""), "model": model, "enhanced": True}
+            
+            try:
+                response = await controller.process_message(enhanced_prompt)
+                
+                # Store the last used model
+                self.last_model = model
+                
+                # Return response with model information
+                return {
+                    "content": response.get("content", ""), 
+                    "model": "llama+cohere",  # Indicate both models were used
+                    "enhanced": True
+                }
+            except Exception as e:
+                self.logger.error(f"Error using {model} with enhancement: {str(e)}")
+                # Fall back to Cohere directly
+                return await self._try_fallback_message(message, model, ['cohere'])
         
-        # Standard processing
+        # Standard processing with fallback
+        return await self._process_message_with_fallback(message, model)
+    
+    async def _process_message_with_fallback(self, message: str, model: str) -> Dict[str, Any]:
+        """Process a message with the selected model, falling back to others if it fails"""
         controller = self.controllers.get(model)
         if not controller:
             self.logger.error(f"Selected model {model} not available")
@@ -90,9 +174,72 @@ class AutoController:
         # Store the last used model
         self.last_model = model
         
-        # Process with the selected model
-        response = await controller.process_message(message)
-        return {"content": response.get("content", ""), "model": model}
+        try:
+            # Process with the selected model
+            response = await controller.process_message(message)
+            
+            # Reset fallback attempts for this model
+            self.fallback_attempts[model] = 0
+            
+            # Ensure model information is included in the response
+            if "model" not in response:
+                response["model"] = model
+                
+            return response
+        except Exception as e:
+            self.logger.error(f"Error processing with {model}: {str(e)}")
+            
+            # Try fallback models
+            available_models = list(self.controllers.keys())
+            fallback_models = [m for m in available_models if m != model]
+            
+            return await self._try_fallback_message(message, model, fallback_models)
+    
+    async def _try_fallback_message(self, message: str, original_model: str, fallback_models: List[str]) -> Dict[str, Any]:
+        """Try fallback models when the primary model fails"""
+        if not fallback_models:
+            return {
+                "content": "All models failed to process your request. Please try again later.",
+                "model": "system",
+                "error": "All models failed"
+            }
+        
+        # Increment fallback attempts for the original model
+        self.fallback_attempts[original_model] = self.fallback_attempts.get(original_model, 0) + 1
+        
+        # Log the fallback
+        self.logger.info(f"Falling back from {original_model} to {fallback_models} (attempt {self.fallback_attempts[original_model]})")
+        
+        # Try each fallback model
+        for fallback_model in fallback_models:
+            controller = self.controllers.get(fallback_model)
+            if not controller:
+                continue
+                
+            try:
+                # Process with the fallback model
+                response = await controller.process_message(message)
+                
+                # Store the last used model
+                self.last_model = fallback_model
+                
+                # Ensure model information is included in the response
+                if "model" not in response:
+                    response["model"] = fallback_model
+                
+                # Add fallback information
+                response["fallback_from"] = original_model
+                
+                return response
+            except Exception as e:
+                self.logger.error(f"Error processing with fallback model {fallback_model}: {str(e)}")
+        
+        # If all fallbacks fail
+        return {
+            "content": "All models failed to process your request. Please try again later.",
+            "model": "system",
+            "error": "All models failed"
+        }
     
     def _needs_current_info(self, message: str) -> bool:
         """Determine if a message requires current information"""
@@ -104,7 +251,8 @@ class AutoController:
         ]
         
         return any(keyword in message_lower for keyword in current_info_keywords)
-    
+   
+
     def _select_model(self, message: str) -> str:
         """Select the most appropriate model based on message content"""
         message_lower = message.lower()
@@ -127,6 +275,19 @@ class AutoController:
             if "cohere" in self.controllers:
                 return "cohere"
         
+        # For long messages or complex queries, prefer Cohere over Llama to avoid timeouts
+        if len(message) > 300 and "cohere" in self.controllers:
+            self.logger.info("Long message detected, routing to Cohere to avoid timeout")
+            return "cohere"
+            
+        # For philosophical, historical, or complex topics, prefer Cohere
+        complex_topics = ['philosophy', 'history', 'culture', 'religion', 'politics', 
+                         'economics', 'science', 'technology', 'innovation', 'sanskrit', 
+                         'grammar', 'language', 'linguistics', 'compare', 'versus', 'vs']
+        if any(topic in message_lower for topic in complex_topics) and "cohere" in self.controllers:
+            self.logger.info(f"Complex topic detected: routing to Cohere")
+            return "cohere"
+        
         # Calculate scores for each model based on keyword matches
         scores = {model: 0 for model in self.controllers.keys()}
         
@@ -136,17 +297,26 @@ class AutoController:
                     scores[model] += 1
         
         # If we have a clear winner, use that model
-        max_score = max(scores.values())
+        max_score = max(scores.values()) if scores else 0
         if max_score > 0:
             # Get all models with the max score
             best_models = [model for model, score in scores.items() if score == max_score]
+            
+            # If Llama has had timeout issues recently, prefer other models
+            if "llama" in best_models and self.fallback_attempts.get("llama", 0) > 0:
+                best_models = [m for m in best_models if m != "llama"] or best_models
+                
             return random.choice(best_models)
         
         # If no clear winner, use the last model if available, otherwise use a default
         if self.last_model and self.last_model in self.controllers:
             return self.last_model
         
-        # Default to llama (Mistral) for general queries
+        # Default to Cohere for general queries if available (more reliable than Llama)
+        if "cohere" in self.controllers:
+            return "cohere"
+            
+        # Fallback to llama (Mistral) if Cohere is not available
         if "llama" in self.controllers:
             return "llama"
         

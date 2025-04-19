@@ -46,7 +46,7 @@ async def test_llama_controller():
         logger.info("Will use simulated responses")
     
     # Test with a simple prompt
-    test_prompt = "Hello, can you tell me about yourself?"
+    test_prompt = "Please find the difference in Sanskrit and English Grammer?"
     logger.info(f"Testing with prompt: '{test_prompt}'")
     
     try:
@@ -79,3 +79,4 @@ if __name__ == "__main__":
 
 
 #  python test_llama_controller.py
+

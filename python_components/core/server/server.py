@@ -8,7 +8,9 @@ from datetime import datetime
 import subprocess
 import glob
 from pathlib import Path
-
+import threading
+import queue
+import time
 
 # Add the parent directory to the Python path for absolute imports
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
@@ -103,6 +105,32 @@ except Exception as e:
     auto_pilot_controller = None
 
 
+def run_with_timeout(func, args=(), kwargs=None, timeout=30):
+    """Run a function with a timeout to prevent hanging"""
+    if kwargs is None:
+        kwargs = {}
+    
+    result_queue = queue.Queue()
+    
+    def worker():
+        try:
+            result = func(*args, **kwargs)
+            result_queue.put(('result', result))
+        except Exception as e:
+            result_queue.put(('error', str(e)))
+    
+    thread = threading.Thread(target=worker)
+    thread.daemon = True
+    thread.start()
+    
+    try:
+        result_type, result_value = result_queue.get(timeout=timeout)
+        if result_type == 'error':
+            return None, result_value
+        return result_value, None
+    except queue.Empty:
+        return None, "Timeout error: Function took too long to respond"
+
 
 @app.route('/api/health', methods=['GET'])
 def health_check():
@@ -120,6 +148,7 @@ def health_check():
     except Exception as e:
         logger.error(f"Health check error: {e}")
         return jsonify({'status': 'error', 'message': str(e)}), 500
+
 
 @app.route('/api/process', methods=['POST'])
 async def process_message():
@@ -150,26 +179,47 @@ async def process_message():
             'timestamp': datetime.now().strftime('%I:%M:%S %p')
         })
         
-        # Check if this is a code generation request
-        is_code_request = any(keyword in message.lower() for keyword in 
-                            ['generate', 'create', 'write', 'code', 'program', 'script', 'function'])
+        # Check for complex topics that might cause timeouts with Llama
+        complex_topics = ['sanskrit', 'grammar', 'language', 'linguistics', 'philosophy', 
+                          'compare', 'versus', 'vs', 'history', 'culture']
         
-        if is_code_request:
-            # Broadcast process updates to all connected clients
-            socketio.emit('process_update', {
-                'type': 'process',
-                'message': f'Starting code generation for: {message[:50]}...',
-                'timestamp': datetime.now().strftime('%I:%M:%S %p')
-            })
-            
-            socketio.emit('process_update', {
-                'type': 'process',
-                'message': 'Generating code...',
-                'timestamp': datetime.now().strftime('%I:%M:%S %p')
-            })
+        # If using Llama and it's a complex topic, switch to Cohere if available
+        if model == 'llama' and any(topic in message.lower() for topic in complex_topics):
+            logger.info("Complex topic detected, considering alternative model")
+            if 'cohere' in controllers:
+                model = 'cohere'
+                controller = controllers[model]
+                socketio.emit('process_update', {
+                    'type': 'process',
+                    'message': f'Switched to {model} for better handling of this topic',
+                    'timestamp': datetime.now().strftime('%I:%M:%S %p')
+                })
         
-        # Process the message
-        response = await controller.process_message(message)
+        # Process the message with a timeout
+        try:
+            # Use asyncio.wait_for to implement a timeout for async functions
+            response = await asyncio.wait_for(
+                controller.process_message(message),
+                timeout=45  # 45 second timeout
+            )
+        except asyncio.TimeoutError:
+            # If timeout occurs and we're using Llama, try Cohere instead
+            if model == 'llama' and 'cohere' in controllers:
+                socketio.emit('process_update', {
+                    'type': 'process',
+                    'message': 'Llama model timed out, switching to Cohere',
+                    'timestamp': datetime.now().strftime('%I:%M:%S %p')
+                })
+                try:
+                    response = await asyncio.wait_for(
+                        controllers['cohere'].process_message(message),
+                        timeout=45
+                    )
+                    response['model'] = 'cohere (fallback from llama)'
+                except asyncio.TimeoutError:
+                    return jsonify({'error': 'All models timed out'}), 504
+            else:
+                return jsonify({'error': 'Request timed out'}), 504
         
         # Emit a process update when processing is complete
         socketio.emit('process_update', {
@@ -178,7 +228,10 @@ async def process_message():
             'timestamp': datetime.now().strftime('%I:%M:%S %p')
         })
         
-        # If this was a code generation request, emit more process updates
+        # Check if this is a code generation request
+        is_code_request = any(keyword in message.lower() for keyword in 
+                            ['generate', 'create', 'write', 'code', 'program', 'script', 'function'])
+        
         if is_code_request:
             # Extract code from response
             code_content = response.get('content', '')
@@ -736,6 +789,14 @@ def execute_command():
         logger.error(f"Error executing command: {str(e)}")
         return jsonify({'error': str(e)}), 500
 
+
+
+
+
+
+
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
     socketio.run(app, host='0.0.0.0', port=port, debug=True)
+
+
