@@ -44,3 +44,51 @@
 .file-item.folder.expanded {
   background-color: var(--bg-selected, #37373d);
 }
+
+
+/* Add these styles to FileTreeView.css */
+
+.ascii-mode {
+  font-family: monospace;
+  white-space: pre;
+  padding: 8px;
+}
+
+.ascii-item {
+  cursor: pointer;
+  padding: 2px 0;
+}
+
+.ascii-item:hover {
+  background-color: var(--bg-hover, #2a2d2e);
+}
+
+/* Make file/folder creation buttons visible on hover for all folders */
+.file-item.folder .project-item-actions {
+  display: none;
+  position: absolute;
+  right: 8px;
+}
+
+.file-item.folder:hover .project-item-actions {
+  display: flex;
+}
+
+.project-item-left {
+  display: flex;
+  align-items: center;
+  flex: 1;
+}
+
+.file-item.folder {
+  position: relative;
+  display: flex;
+  justify-content: space-between;
+}
+
+/* Styles for folder view */
+.file-item-simple {
+  padding: 4px 8px;
+  margin: 2px 0;
+  border-radius: 3px;
+}

@@ -94,75 +94,6 @@
   background-color: var(--color-primary-hover, #1177bb);
 }
 
-/* Repository structure */
-.repository-root {
-  width: 100%;
-}
-
-.repository-header {
-  display: flex;
-  align-items: center;
-  padding: 4px 8px;
-  cursor: pointer;
-}
-
-.repository-header:hover {
-  background-color: var(--bg-hover, #2a2d2e);
-}
-
-.repository-header.expanded {
-  background-color: var(--bg-selected, #37373d);
-}
-
-.collapse-icon {
-  margin-right: 4px;
-  font-size: 10px;
-  width: 10px;
-  display: inline-block;
-}
-
-.repository-name {
-  font-weight: bold;
-}
-
-.repository-files {
-  margin-left: 8px;
-}
-
-/* Repository actions */
-.repository-actions {
-  padding: 8px;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.repository-action-button {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  background-color: var(--bg-secondary, #252526);
-  border: 1px solid var(--border-color, #333);
-  color: var(--text-primary, #e6e6e6);
-  padding: 8px 12px;
-  border-radius: 3px;
-  cursor: pointer;
-  width: 100%;
-  text-align: left;
-}
-
-.repository-action-button:hover {
-  background-color: var(--bg-hover, #2a2d2e);
-}
-
-.action-icon {
-  font-size: 14px;
-}
-
-.action-text {
-  font-size: 12px;
-}
-
 /* Projects list */
 .projects-list {
   display: flex;
@@ -172,6 +103,7 @@
 
 .projects-header {
   display: flex;
+  justify-content: space-between;
   align-items: center;
   padding: 4px 8px;
   font-size: 11px;
@@ -180,108 +112,33 @@
   text-transform: uppercase;
 }
 
-.projects-container {
-  display: flex;
-  flex-direction: column;
-  width: 100%;
+.projects-title {
+  flex: 1;
 }
 
-/* Create project dialog */
-.create-project-dialog {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  background-color: var(--bg-secondary, #252526);
-  border: 1px solid var(--border-color, #333);
-  border-radius: 4px;
-  width: 400px;
-  max-width: 90vw;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
-  z-index: 1000;
-}
-
-.dialog-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 12px 16px;
-  border-bottom: 1px solid var(--border-color, #333);
-}
-
-.dialog-header h3 {
-  margin: 0;
-  font-size: 14px;
-  font-weight: 500;
-}
-
-.close-button {
+.project-action-button {
   background: none;
   border: none;
   color: var(--text-secondary, #a0a0a0);
   cursor: pointer;
-  font-size: 16px;
-}
-
-.close-button:hover {
-  color: var(--text-primary, #e6e6e6);
-}
-
-.form-group {
-  padding: 16px;
-}
-
-.form-group label {
-  display: block;
-  margin-bottom: 8px;
-  font-size: 12px;
-}
-
-.form-group input,
-.form-group textarea {
-  width: 100%;
-  padding: 8px;
-  background-color: var(--bg-dark, #1e1e1e);
-  border: 1px solid var(--border-color, #333);
-  color: var(--text-primary, #e6e6e6);
-  border-radius: 3px;
-  font-family: inherit;
-}
-
-.form-group textarea {
-  resize: vertical;
-  min-height: 60px;
-}
-
-.form-actions {
+  font-size: 14px;
+  width: 18px;
+  height: 18px;
   display: flex;
-  justify-content: flex-end;
-  gap: 8px;
-  padding: 12px 16px;
-  border-top: 1px solid var(--border-color, #333);
+  align-items: center;
+  justify-content: center;
+  border-radius: 3px;
 }
 
-.cancel-button {
-  background-color: transparent;
-  border: 1px solid var(--border-color, #333);
+.project-action-button:hover {
+  background-color: var(--bg-hover, #2a2d2e);
   color: var(--text-primary, #e6e6e6);
-  padding: 6px 12px;
-  border-radius: 3px;
-  cursor: pointer;
 }
 
-.create-button {
-  background-color: var(--color-primary, #0e639c);
-  color: white;
-  border: none;
-  padding: 6px 12px;
-  border-radius: 3px;
-  cursor: pointer;
-}
-
-.create-button:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
+.projects-container {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
 }
 
 /* File tree view styles */
@@ -327,6 +184,48 @@
 
 .folder-children {
   margin-left: 8px;
+}
+
+/* Project item with actions */
+.project-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 4px 8px;
+}
+
+.project-item-left {
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+}
+
+.project-item-actions {
+  display: none;
+  gap: 4px;
+}
+
+.project-item:hover .project-item-actions {
+  display: flex;
+}
+
+.project-item-action {
+  background: none;
+  border: none;
+  color: var(--text-secondary, #a0a0a0);
+  cursor: pointer;
+  font-size: 12px;
+  width: 16px;
+  height: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 3px;
+}
+
+.project-item-action:hover {
+  background-color: var(--bg-hover, #2a2d2e);
+  color: var(--text-primary, #e6e6e6);
 }
 
 /* Context menu styles */
@@ -423,4 +322,79 @@
   padding: 8px;
   font-size: 12px;
   text-align: center;
+}
+
+/* Create project dialog */
+.create-project-dialog {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: var(--bg-secondary, #252526);
+  border: 1px solid var(--border-color, #333);
+  border-radius: 4px;
+  width: 400px;
+  max-width: 90vw;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+}
+
+.dialog-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border-color, #333);
+}
+
+.dialog-header h3 {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.close-button {
+  background: none;
+  border: none;
+  color: var(--text-secondary, #a0a0a0);
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.close-button:hover {
+  color: var(--text-primary, #e6e6e6);
+}
+
+.form-group {
+  padding: 16px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 12px;
+}
+
+.form-group input,
+.form-group textarea {
+  width: 100%;
+  padding: 8px;
+  background-color: var(--bg-dark, #1e1e1e);
+  border: 1px solid var(--border-color, #333);
+  color: var(--text-primary, #e6e6e6);
+  border-radius: 3px;
+  font-family: inherit;
+}
+
+.form-group textarea {
+  resize: vertical;
+  min-height: 60px;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  padding: 12px 16px;
+  border-top: 1px solid var(--border-color, #333);
 }

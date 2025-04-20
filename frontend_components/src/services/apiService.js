@@ -391,140 +391,12 @@ class ApiService {
   }
 
 
-  /**
-   * Create a new file in a project
-   * @param {string} projectPath - Path to the project directory
-   * @param {string} fileName - Name of the file to create
-   * @param {string} content - Content to write to the file
-   * @returns {Promise<Object>} File creation result
-   */
-  async createFile(projectPath, fileName, content = '') {
-    try {
-      const response = await fetch(`${this.baseUrl}/file/create`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ 
-          project_path: projectPath, 
-          file_name: fileName, 
-          content: content 
-        }),
-      });
-      
-      if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
-      }
-      
-      return await response.json();
-    } catch (error) {
-      console.error('Error creating file:', error);
-      throw error;
-    }
-  }
 
 
 
-  /**
-   * Create a new folder (project)
-   * @param {string} projectName - Name for the project
-   * @param {string} description - Optional project description
-   * @returns {Promise<Object>} Project creation result
-   */
-  async createProject(projectName, description = '') {
-    try {
-      const response = await fetch(`${this.baseUrl}/project/create`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ 
-          project_name: projectName, 
-          description: description 
-        }),
-      });
-      
-      if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
-      }
-      
-      return await response.json();
-    } catch (error) {
-      console.error('Error creating project:', error);
-      throw error;
-    }
-  }
 
 
-  /**
-   * Create a new folder
-   * @param {string} path - Path to the parent directory
-   * @param {string} name - Name of the folder to create
-   * @returns {Promise<Object>} Creation result
-   */
-  async createFolder(path, name) {
-    try {
-      const response = await fetch(`${this.baseUrl}/file/create`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ path, name, type: 'folder' }),
-      });
-      
-      return await response.json();
-    } catch (error) {
-      console.error('Error creating folder:', error);
-      return { error: error.message };
-    }
-  }
 
-  /**
-   * Rename a file or folder
-   * @param {string} path - Path to the file or folder
-   * @param {string} newName - New name for the file or folder
-   * @returns {Promise<Object>} Rename result
-   */
-  async renameFile(path, newName) {
-    try {
-      const response = await fetch(`${this.baseUrl}/file/rename`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ path, newName }),
-      });
-      
-      return await response.json();
-    } catch (error) {
-      console.error('Error renaming file:', error);
-      return { error: error.message };
-    }
-  }
-
-  /**
-   * Delete a file or folder
-   * @param {string} path - Path to the file or folder
-   * @returns {Promise<Object>} Deletion result
-   */
-  async deleteFile(path) {
-    try {
-      const response = await fetch(`${this.baseUrl}/file/delete`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ path }),
-      });
-      
-      return await response.json();
-    } catch (error) {
-      console.error('Error deleting file:', error);
-      return { error: error.message };
-    }
-  }
 
 
 
@@ -558,6 +430,158 @@ class ApiService {
 
 
 
+  /**
+   * Create a new file in a project
+   * @param {string} projectPath - Path to the project directory
+   * @param {string} fileName - Name of the file to create
+   * @param {string} content - Content to write to the file
+   * @returns {Promise<Object>} File creation result
+   */
+  async createFile(projectPath, fileName, content = '') {
+    try {
+      const response = await fetch(`${this.baseUrl}/file/create`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ 
+          project_path: projectPath, 
+          file_name: fileName, 
+          content: content 
+        }),
+      });
+      
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
+      }
+      
+      return await response.json();
+    } catch (error) {
+      console.error('Error creating file:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Create a new folder in a project
+   * @param {string} projectPath - Path to the parent directory
+   * @param {string} folderName - Name of the folder to create
+   * @returns {Promise<Object>} Folder creation result
+   */
+  async createFolder(projectPath, folderName) {
+    try {
+      const response = await fetch(`${this.baseUrl}/folder/create`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ 
+          project_path: projectPath, 
+          folder_name: folderName
+        }),
+      });
+      
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
+      }
+      
+      return await response.json();
+    } catch (error) {
+      console.error('Error creating folder:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Create a new project
+   * @param {string} projectName - Name for the project
+   * @param {string} description - Optional project description
+   * @returns {Promise<Object>} Project creation result
+   */
+  async createProject(projectName, description = '') {
+    try {
+      const response = await fetch(`${this.baseUrl}/project/create`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ 
+          project_name: projectName, 
+          description: description 
+        }),
+      });
+      
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
+      }
+      
+      return await response.json();
+    } catch (error) {
+      console.error('Error creating project:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Rename a file or folder
+   * @param {string} path - Path to the file or folder
+   * @param {string} newName - New name for the file or folder
+   * @returns {Promise<Object>} Rename result
+   */
+  async renameFile(path, newName) {
+    try {
+      const response = await fetch(`${this.baseUrl}/file/rename`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ 
+          path: path, 
+          new_name: newName 
+        }),
+      });
+      
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
+      }
+      
+      return await response.json();
+    } catch (error) {
+      console.error('Error renaming file:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Delete a file or folder
+   * @param {string} path - Path to the file or folder
+   * @returns {Promise<Object>} Delete result
+   */
+  async deleteFile(path) {
+    try {
+      const response = await fetch(`${this.baseUrl}/file/delete`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ path: path }),
+      });
+      
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
+      }
+      
+      return await response.json();
+    } catch (error) {
+      console.error('Error deleting file:', error);
+      throw error;
+    }
+  }
 
 
 

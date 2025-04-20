@@ -1,0 +1,110 @@
+.create-file-dialog-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.create-file-dialog {
+  background-color: var(--bg-secondary, #252526);
+  border: 1px solid var(--border-color, #333);
+  border-radius: 4px;
+  width: 400px;
+  max-width: 90vw;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+}
+
+.dialog-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border-color, #333);
+}
+
+.dialog-header h3 {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.close-button {
+  background: none;
+  border: none;
+  color: var(--text-secondary, #a0a0a0);
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.close-button:hover {
+  color: var(--text-primary, #e6e6e6);
+}
+
+.error-message {
+  color: var(--color-error, #f48771);
+  padding: 8px 16px;
+  font-size: 12px;
+  margin-top: 8px;
+}
+
+.form-group {
+  padding: 16px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 12px;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 8px;
+  background-color: var(--bg-dark, #1e1e1e);
+  border: 1px solid var(--border-color, #333);
+  color: var(--text-primary, #e6e6e6);
+  border-radius: 3px;
+  font-family: inherit;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  padding: 12px 16px;
+  border-top: 1px solid var(--border-color, #333);
+}
+
+.cancel-button {
+  background-color: transparent;
+  border: 1px solid var(--border-color, #333);
+  color: var(--text-primary, #e6e6e6);
+  padding: 6px 12px;
+  border-radius: 3px;
+  cursor: pointer;
+}
+
+.cancel-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.create-button {
+  background-color: var(--color-primary, #0e639c);
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 3px;
+  cursor: pointer;
+}
+
+.create-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

@@ -3,33 +3,27 @@ import './FileBrowser.css';
 import FileTreeView from './FileTreeView';
 import FileOperations from './FileOperations';
 import apiService from '../../services/apiService';
-import mockFileSystem from '../../data/mockFileSystem';
 
 /**
  * FileBrowser Component
  * 
- * A file explorer for the .Repositories directory
+ * A file explorer similar to VS Code's Explorer panel
+ * Shows the project structure for the .Repositories directory
  */
 const FileBrowser = ({ instanceId }) => {
   const [files, setFiles] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [expandedFolders, setExpandedFolders] = useState({});
+  const [viewMode, setViewMode] = useState('tree'); // 'tree', 'folder', or 'ascii'
   const [contextMenu, setContextMenu] = useState({
     visible: false,
     position: null,
     item: null
   });
   const [error, setError] = useState(null);
-  const [useTestData, setUseTestData] = useState(false);
   const [showCreateProjectDialog, setShowCreateProjectDialog] = useState(false);
   const [newProjectName, setNewProjectName] = useState('');
   const [projectDescription, setProjectDescription] = useState('');
-
-  // Toggle between test data and real API
-  const toggleDataSource = () => {
-    setUseTestData(prev => !prev);
-    loadFiles();
-  };
 
   // Load the project structure
   const loadFiles = async () => {
@@ -37,37 +31,21 @@ const FileBrowser = ({ instanceId }) => {
     setError(null);
     
     try {
-      if (useTestData) {
-        setTimeout(() => {
-          setFiles(mockFileSystem);
-          setIsLoading(false);
-          
-          // Auto-expand all project folders
-          const expanded = { 'repo-root': true };
-          mockFileSystem.forEach(item => {
-            if (item.type === 'folder') {
-              expanded[item.id] = true;
-            }
-          });
-          setExpandedFolders(expanded);
-        }, 500);
-      } else {
-        const response = await apiService.getFiles();
-        console.log('Loaded file system:', response);
-        
-        setFiles(response);
-        
-        // Auto-expand all project folders
-        const expanded = { 'repo-root': true };
-        response.forEach(item => {
-          if (item.type === 'folder') {
+      const response = await apiService.getFiles();
+      console.log('Loaded file system:', response);
+      
+      setFiles(response);
+      
+      // Auto-expand all project folders
+      const expanded = { 'repo-root': true };
+      response.forEach(item => {
+        if (item.type === 'folder') {
             expanded[item.id] = true;
-          }
-        });
-        setExpandedFolders(expanded);
-        
-        setIsLoading(false);
-      }
+        }
+      });
+      setExpandedFolders(expanded);
+      
+      setIsLoading(false);
     } catch (error) {
       console.error('Error loading files:', error);
       setError('Failed to load files. Please try again.');
@@ -80,14 +58,20 @@ const FileBrowser = ({ instanceId }) => {
     loadFiles();
   }, []);
 
-  // Toggle folder expansion (only for project subfolders, not for .Repositories)
+  // Toggle view mode
+  const toggleViewMode = () => {
+    setViewMode(prev => {
+      if (prev === 'tree') return 'folder';
+      if (prev === 'folder') return 'ascii';
+      return 'tree';
+    });
+  };
+
+  // Toggle folder expansion
   const toggleFolder = (folderId, event) => {
     if (event) {
       event.stopPropagation();
     }
-    
-    // Don't toggle repo-root
-    if (folderId === 'repo-root') return;
     
     setExpandedFolders(prev => ({
       ...prev,
@@ -207,13 +191,13 @@ const FileBrowser = ({ instanceId }) => {
       <div className="explorer-header">
         <div className="explorer-title">EXPLORER</div>
         <div className="explorer-controls">
-          {/* Create Project button in header */}
+          {/* Add back the view mode toggle button */}
           <button 
             className="explorer-control-button" 
-            onClick={handleCreateProject}
-            title="Create Project"
+            onClick={toggleViewMode}
+            title={`Switch to ${viewMode === 'tree' ? 'Folder' : viewMode === 'folder' ? 'ASCII Tree' : 'Tree'} view`}
           >
-            📁+
+            {viewMode === 'tree' ? '🌲' : viewMode === 'folder' ? '📁' : '⌨️'}
           </button>
           <button 
             className="explorer-control-button" 
@@ -221,13 +205,6 @@ const FileBrowser = ({ instanceId }) => {
             title="Refresh"
           >
             🔄
-          </button>
-          <button 
-            className="explorer-control-button" 
-            onClick={toggleDataSource}
-            title={useTestData ? "Switch to API data" : "Switch to test data"}
-          >
-            {useTestData ? "🌐" : "🧪"}
           </button>
         </div>
       </div>
@@ -237,37 +214,43 @@ const FileBrowser = ({ instanceId }) => {
           <div className="loading-message">Loading files...</div>
         ) : error ? (
           <div className="error-message">{error}</div>
+        ) : files.length === 0 ? (
+          /* Only show Create Project button when no projects exist */
+          <div className="empty-state">
+            <div className="empty-state-icon">📁</div>
+            <div className="empty-state-message">No projects found</div>
+            <button 
+              className="empty-state-button"
+              onClick={handleCreateProject}
+            >
+              Create New Project
+            </button>
+          </div>
         ) : (
-          <>
-            {/* Project list */}
-            {files.length === 0 ? (
-              <div className="empty-state">
-                <div className="empty-state-icon">📁</div>
-                <div className="empty-state-message">No projects found</div>
-                <button 
-                  className="empty-state-button"
-                  onClick={handleCreateProject}
-                >
-                  Create New Project
-                </button>
-              </div>
-            ) : (
-              <div className="projects-list">
-                <div className="projects-header">
-                  <span className="projects-title">PROJECTS</span>
-                </div>
-                <div className="projects-container">
-                  <FileTreeView 
-                    files={files}
-                    expandedFolders={expandedFolders}
-                    onToggleFolder={toggleFolder}
-                    onFileSelect={openFileInWorkspace}
-                    onContextMenu={handleContextMenu}
-                  />
-                </div>
-              </div>
-            )}
-          </>
+          <div className="projects-list">
+            <div className="projects-header">
+              <span className="projects-title">PROJECTS</span>
+              {/* Add New Project button next to PROJECTS header when projects exist */}
+              <button 
+                className="project-action-button"
+                onClick={handleCreateProject}
+                title="New Project"
+              >
+                +
+              </button>
+            </div>
+            <div className="projects-container">
+              <FileTreeView 
+                files={files}
+                expandedFolders={expandedFolders}
+                onToggleFolder={toggleFolder}
+                onFileSelect={openFileInWorkspace}
+                onContextMenu={handleContextMenu}
+                onRefresh={handleRefresh}
+                viewMode={viewMode}
+              />
+            </div>
+          </div>
         )}
       </div>
       
