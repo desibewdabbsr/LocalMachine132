@@ -1,23 +1,15 @@
-.create-file-dialog-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(0, 0, 0, 0.5);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1000;
-}
-
 .create-file-dialog {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
   background-color: var(--bg-secondary, #252526);
   border: 1px solid var(--border-color, #333);
   border-radius: 4px;
-  width: 400px;
+  width: 300px;
   max-width: 90vw;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+  z-index: 1000;
 }
 
 .dialog-header {
@@ -44,13 +36,6 @@
 
 .close-button:hover {
   color: var(--text-primary, #e6e6e6);
-}
-
-.error-message {
-  color: var(--color-error, #f48771);
-  padding: 8px 16px;
-  font-size: 12px;
-  margin-top: 8px;
 }
 
 .form-group {
@@ -90,11 +75,6 @@
   cursor: pointer;
 }
 
-.cancel-button:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
 .create-button {
   background-color: var(--color-primary, #0e639c);
   color: white;
@@ -107,4 +87,10 @@
 .create-button:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+}
+
+.error-message {
+  color: var(--color-error, #f48771);
+  padding: 8px 16px 0;
+  font-size: 12px;
 }

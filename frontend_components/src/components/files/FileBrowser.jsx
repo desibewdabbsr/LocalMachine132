@@ -9,6 +9,11 @@ import apiService from '../../services/apiService';
  * 
  * A file explorer similar to VS Code's Explorer panel
  * Shows the project structure for the .Repositories directory
+ * 
+ * Features three view modes:
+ * - Tree: Traditional tree view with hierarchy indicators
+ * - Folder: Simple folder view like a standard file explorer
+ * - ASCII: Text-based tree view with ASCII characters
  */
 const FileBrowser = ({ instanceId }) => {
   const [files, setFiles] = useState([]);
@@ -191,7 +196,7 @@ const FileBrowser = ({ instanceId }) => {
       <div className="explorer-header">
         <div className="explorer-title">EXPLORER</div>
         <div className="explorer-controls">
-          {/* Add back the view mode toggle button */}
+          {/* View mode toggle button */}
           <button 
             className="explorer-control-button" 
             onClick={toggleViewMode}

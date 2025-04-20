@@ -6,6 +6,8 @@
 
 /**
  * Get appropriate icon for a file based on its extension
+ * Icons are sized to match the text and use consistent styling
+ * 
  * @param {string} fileName - The file name
  * @returns {string} Icon emoji
  */

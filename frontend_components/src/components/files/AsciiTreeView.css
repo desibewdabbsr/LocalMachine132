@@ -1,0 +1,69 @@
+.ascii-tree-view {
+  font-family: monospace;
+  white-space: pre;
+  padding: 8px;
+  font-size: 14px;
+}
+
+.ascii-item-container {
+  position: relative;
+}
+
+.ascii-item {
+  cursor: pointer;
+  padding: 2px 0;
+  display: flex;
+  align-items: center;
+  position: relative;
+}
+
+.ascii-item:hover {
+  background-color: var(--bg-hover, #2a2d2e);
+}
+
+.ascii-line {
+  color: var(--color-saffron, #FF9933); /* Saffron color for ASCII lines */
+}
+
+.ascii-folder .folder-name {
+  color: var(--color-saffron, #FF9933); /* Saffron color for folder names */
+  font-weight: bold;
+}
+
+.ascii-file .file-name {
+  color: var(--color-gold, #FFD700); /* Gold color for file names */
+}
+
+.ascii-actions {
+  display: none;
+  position: absolute;
+  right: 8px;
+}
+
+.ascii-item:hover .ascii-actions {
+  display: flex;
+}
+
+.ascii-action {
+  background: none;
+  border: none;
+  color: var(--text-secondary, #a0a0a0);
+  cursor: pointer;
+  font-size: 12px;
+  width: 16px;
+  height: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 3px;
+  margin-left: 4px;
+}
+
+.ascii-action:hover {
+  background-color: var(--bg-hover, #2a2d2e);
+  color: var(--text-primary, #e6e6e6);
+}
+
+.ascii-children {
+  margin-left: 0; /* No additional margin needed as it's included in the prefix */
+}

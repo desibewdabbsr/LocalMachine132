@@ -1,69 +1,79 @@
+/* Tree view styles */
 .file-tree-view {
-  font-size: 13px;
+  width: 100%;
+  font-size: 14px;
 }
 
+/* Tree indicator styles */
+.tree-indicator {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background-color: var(--color-saffron, #FF9933); /* Saffron color for tree lines */
+}
+
+.tree-indicator-horizontal {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  width: 8px;
+  height: 1px;
+  background-color: var(--color-saffron, #FF9933); /* Saffron color for tree lines */
+}
+
+/* File and folder item styles */
 .tree-item-container {
-  margin: 1px 0;
+  position: relative;
+  width: 100%;
 }
 
 .file-item {
   display: flex;
   align-items: center;
-  padding: 3px 8px;
+  padding: 4px 8px 4px 16px;
   cursor: pointer;
-  border-radius: 3px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  position: relative;
+  color: var(--color-gold, #FFD700); /* Gold color for text */
+}
+
+.file-item:hover {
+  background-color: var(--bg-hover, #2a2d2e);
+}
+
+.folder-toggle {
+  margin-right: 4px;
+  font-size: 10px;
+  width: 10px;
+  display: inline-block;
+  color: var(--color-saffron, #FF9933); /* Saffron color for toggle */
+}
+
+.folder-icon,
+.file-icon {
+  margin-right: 6px;
+  font-size: 14px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.file-name {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
-.file-item:hover {
-  background-color: var(--bg-hover, #2a2a2a);
-}
-
-.folder-toggle {
-  width: 16px;
-  display: inline-flex;
-  justify-content: center;
-  color: var(--text-secondary, #a0a0a0);
-}
-
-.folder-icon, .file-icon {
-  margin-right: 6px;
-}
-
-.file-name {
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
 .folder-children {
-  margin-left: 0;
+  margin-left: 16px;
+  position: relative;
 }
 
-.file-item.folder.expanded {
-  background-color: var(--bg-selected, #37373d);
-}
-
-
-/* Add these styles to FileTreeView.css */
-
-.ascii-mode {
-  font-family: monospace;
-  white-space: pre;
-  padding: 8px;
-}
-
-.ascii-item {
-  cursor: pointer;
-  padding: 2px 0;
-}
-
-.ascii-item:hover {
-  background-color: var(--bg-hover, #2a2d2e);
-}
-
-/* Make file/folder creation buttons visible on hover for all folders */
+/* File/folder creation buttons */
 .file-item.folder .project-item-actions {
   display: none;
   position: absolute;
@@ -86,9 +96,119 @@
   justify-content: space-between;
 }
 
-/* Styles for folder view */
-.file-item-simple {
-  padding: 4px 8px;
-  margin: 2px 0;
+.project-item-action {
+  background: none;
+  border: none;
+  color: var(--text-secondary, #a0a0a0);
+  cursor: pointer;
+  font-size: 12px;
+  width: 16px;
+  height: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   border-radius: 3px;
+  margin-left: 4px;
+}
+
+.project-item-action:hover {
+  background-color: var(--bg-hover, #2a2d2e);
+  color: var(--text-primary, #e6e6e6);
+}
+
+/* Folder view styles (traditional file explorer) */
+.folder-view-level {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.folder-view-header {
+  background-color: var(--bg-secondary, #252526);
+  padding: 4px 8px;
+  font-size: 12px;
+  border-bottom: 1px solid var(--border-color, #3c3c3c);
+  height: 24px; /* Half the size of the explorer header */
+  display: flex;
+  align-items: center;
+}
+
+.folder-view-path {
+  color: var(--color-saffron, #FF9933);
+  font-weight: bold;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.folder-view-items {
+  display: flex;
+  flex-wrap: wrap;
+  padding: 8px;
+}
+
+.folder-view-item {
+  width: 100px;
+  height: 100px;
+  margin: 4px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  border-radius: 4px;
+  position: relative;
+  padding: 8px;
+}
+
+.folder-view-item:hover {
+  background-color: var(--bg-hover, #2a2d2e);
+}
+
+.folder-view-item-icon {
+  font-size: 32px;
+  margin-bottom: 8px;
+}
+
+.folder-view-item-name {
+  font-size: 12px;
+  text-align: center;
+  word-break: break-word;
+  max-width: 100%;
+  color: var(--color-gold, #FFD700);
+}
+
+.folder-view-item.folder .folder-view-item-name {
+  color: var(--color-saffron, #FF9933);
+}
+
+.folder-view-item-actions {
+  display: none;
+  position: absolute;
+  top: 4px;
+  right: 4px;
+}
+
+.folder-view-item:hover .folder-view-item-actions {
+  display: flex;
+}
+
+.folder-view-item-action {
+  background: none;
+  border: none;
+  color: var(--text-secondary, #a0a0a0);
+  cursor: pointer;
+  font-size: 12px;
+  width: 16px;
+  height: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 3px;
+  margin-left: 2px;
+}
+
+.folder-view-item-action:hover {
+  background-color: var(--bg-hover, #2a2d2e);
+  color: var(--text-primary, #e6e6e6);
 }
