@@ -59,6 +59,10 @@ def register_routes(app, controllers):
             logger.error(f"Error retrieving file {file_path}: {str(e)}")
             return jsonify({'error': str(e)}), 500
         
+
+
+
+
     @app.route('/api/project/create', methods=['POST'])
     def create_project():
         """Create a new project using CodeFileHandler"""
@@ -75,18 +79,54 @@ def register_routes(app, controllers):
             
             # Create project
             code_handler = CodeFileHandler()
-            result = code_handler.create_project_manually(project_name, description)
             
-            if result.get('status') == 'success':
-                logger.info(f"Created project: {result.get('project_name')}")
-                return jsonify(result)
-            else:
-                logger.error(f"Error creating project: {result.get('error')}")
-                return jsonify(result), 500
+            # Sanitize project name to ensure it's filesystem-friendly
+            import re
+            from datetime import datetime
+            import json
+            
+            sanitized_name = re.sub(r'[^a-zA-Z0-9_-]', '_', project_name)
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            project_dir_name = f"{sanitized_name}_{timestamp}"
+            
+            # Create project directory
+            project_dir = os.path.join('.Repositories', project_dir_name)
+            os.makedirs(project_dir, exist_ok=True)
+            
+            # Create README.md
+            readme_path = os.path.join(project_dir, "README.md")
+            with open(readme_path, 'w') as f:
+                f.write(f"# {project_name}\n\n")
+                f.write(f"Created on: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n\n")
+                
+                if description:
+                    f.write(f"## Description\n\n")
+                    f.write(f"{description}\n\n")
+                
+                f.write(f"## Files\n\n")
+                f.write(f"*No files yet*\n")
+            
+            # Create a workspace.json file to help AI identify this as a workspace
+            workspace_path = os.path.join(project_dir, "workspace.json")
+            with open(workspace_path, 'w') as f:
+                json.dump({
+                    'name': project_name,
+                    'description': description,
+                    'created': datetime.now().isoformat(),
+                    'type': 'project'
+                }, f, indent=2)
+            
+            logger.info(f"Created project: {project_dir}")
+            
+            return jsonify({
+                'status': 'success',
+                'project_name': project_name,
+                'project_dir': project_dir,
+                'readme_path': readme_path
+            })
         except Exception as e:
             logger.error(f"Error creating project: {str(e)}")
-            return jsonify({'status': 'error', 'error': str(e)}), 500
-            
+            return jsonify({'status': 'error', 'error': str(e)}), 500 
 
 
     @app.route('/api/file/create', methods=['POST'])
@@ -231,4 +271,137 @@ def register_routes(app, controllers):
             })
         except Exception as e:
             logger.error(f"Error deleting file: {str(e)}")
+            return jsonify({'status': 'error', 'error': str(e)}), 500
+        
+
+
+
+    @app.route('/api/process_with_workspace', methods=['POST'])
+    async def process_message_with_workspace():
+        """Process a message with workspace context"""
+        try:
+            data = request.json
+            message = data.get('message', '')
+            model = data.get('model', 'auto')
+            workspace_context = data.get('workspace_context')
+            
+            if not message:
+                return jsonify({'error': 'No message provided'}), 400
+            
+            controller = controllers.get(model)
+            if not controller:
+                return jsonify({'error': f'Unknown model: {model}'}), 400
+            
+            # Process the message
+            if hasattr(controller, 'process_message_with_workspace'):
+                # If the controller has the workspace-aware method, use it
+                response = await controller.process_message_with_workspace(message, workspace_context)
+            else:
+                # Otherwise, enhance the message with workspace context and use regular processing
+                enhanced_message = message
+                if workspace_context:
+                    workspace_name = workspace_context.get('name')
+                    workspace_path = workspace_context.get('path')
+                    enhanced_message = f"[Working in project: {workspace_name}, path: {workspace_path}]\n{message}"
+                
+                response = await controller.process_message(enhanced_message)
+                
+                # Add workspace context to the response
+                if workspace_context:
+                    response["workspace"] = workspace_context
+            
+            return jsonify(response)
+        except Exception as e:
+            logger.error(f"Error processing message with workspace: {str(e)}")
+            return jsonify({'error': str(e)}), 500
+
+
+
+
+
+    @app.route('/api/workspace/set-active', methods=['POST'])
+    def set_active_workspace():
+        """Set the active workspace for code generation"""
+        try:
+            data = request.json
+            workspace_path = data.get('path', '')
+            
+            if not workspace_path:
+                return jsonify({'status': 'error', 'error': 'No workspace path provided'}), 400
+            
+            # Store the active workspace path in a global variable or config
+            app.config['ACTIVE_WORKSPACE'] = workspace_path
+            
+            # Also update the code file handler's default directory
+            from python_components.core.code_handler.code_file_handler import CodeFileHandler
+            code_handler = CodeFileHandler(workspace_path)
+            
+            logger.info(f"Set active workspace: {workspace_path}")
+            return jsonify({
+                'status': 'success',
+                'message': f'Active workspace set to {workspace_path}',
+                'workspace': workspace_path
+            })
+        except Exception as e:
+            logger.error(f"Error setting active workspace: {str(e)}")
+            return jsonify({'status': 'error', 'error': str(e)}), 500
+
+    @app.route('/api/workspace/active', methods=['GET'])
+    def get_active_workspace():
+        """Get the currently active workspace"""
+        try:
+            active_workspace = app.config.get('ACTIVE_WORKSPACE', None)
+            
+            if not active_workspace:
+                return jsonify({
+                    'status': 'info',
+                    'message': 'No active workspace set',
+                    'workspace': None
+                })
+            
+            return jsonify({
+                'status': 'success',
+                'workspace': active_workspace
+            })
+        except Exception as e:
+            logger.error(f"Error getting active workspace: {str(e)}")
+            return jsonify({'status': 'error', 'error': str(e)}), 500
+
+    @app.route('/api/workspace/create', methods=['POST'])
+    def create_workspace():
+        """Create a new workspace"""
+        try:
+            data = request.json
+            name = data.get('name', '')
+            description = data.get('description', '')
+            
+            if not name:
+                return jsonify({'status': 'error', 'error': 'No workspace name provided'}), 400
+            
+            # Import CodeFileHandler
+            from python_components.core.code_handler.code_file_handler import CodeFileHandler
+            
+            # Create workspace (which is just a project)
+            code_handler = CodeFileHandler()
+            result = code_handler.create_project_manually(name, description)
+            
+            if result.get('status') == 'success':
+                # Set this as the active workspace
+                app.config['ACTIVE_WORKSPACE'] = result.get('dir_path')
+                
+                logger.info(f"Created workspace: {result.get('project_name')}")
+                return jsonify({
+                    'status': 'success',
+                    'message': f'Workspace {name} created successfully',
+                    'workspace': {
+                        'name': name,
+                        'path': result.get('dir_path'),
+                        'description': description
+                    }
+                })
+            else:
+                logger.error(f"Error creating workspace: {result.get('error')}")
+                return jsonify(result), 500
+        except Exception as e:
+            logger.error(f"Error creating workspace: {str(e)}")
             return jsonify({'status': 'error', 'error': str(e)}), 500

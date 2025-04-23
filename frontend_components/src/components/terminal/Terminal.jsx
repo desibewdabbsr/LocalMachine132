@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import './Terminal.css';
 import appConfig from '../../config/appConfig';
 import { executeCommand, getAvailableCommands } from './terminal_commands';
+import { useWorkspace } from '../../context/WorkspaceContext';
 
 /**
  * Terminal Component
@@ -51,7 +52,18 @@ const Terminal = () => {
   const [commandHistory, setCommandHistory] = useState([]);
   const [historyIndex, setHistoryIndex] = useState(-1);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [currentDirectory, setCurrentDirectory] = useState('~/.Repositories');
   
+  // Try to use the workspace context, but don't fail if it's not available
+  let workspaceContext;
+  try {
+    workspaceContext = useWorkspace();
+  } catch (error) {
+    workspaceContext = { activeWorkspace: null };
+  }
+  
+  const { activeWorkspace } = workspaceContext;
+
   const outputRef = useRef(null);
   const inputRef = useRef(null);
 
@@ -76,19 +88,22 @@ const Terminal = () => {
 
   // Process command using the terminal_commands module
   const processCommand = async (cmd) => {
-    if (!cmd.trim()) return;
+    // Add command to history even if empty
+    const newHistory = [...history, { type: 'command', content: `${currentDirectory}$ ${cmd}` }];
+    setHistory(newHistory);
+    
+    // If command is empty, just add a new line and return
+    if (!cmd.trim()) {
+      return;
+    }
     
     setIsProcessing(true);
-    
-    // Add command to history
-    const newHistory = [...history, { type: 'command', content: `$ ${cmd}` }];
     
     try {
       // Execute the command
       const result = await executeCommand(cmd);
       
       if (!result) {
-        setHistory(newHistory);
         return;
       }
       
@@ -100,18 +115,23 @@ const Terminal = () => {
         return;
       }
       
+      // Update current directory if command changed it
+      if (result.newDirectory) {
+        setCurrentDirectory(result.newDirectory);
+      }
+      
       // Add result to history
-      newHistory.push({ type: result.type, content: result.content });
-      setHistory(newHistory);
+      const updatedHistory = [...newHistory, { type: result.type, content: result.content }];
+      setHistory(updatedHistory);
     } catch (error) {
       console.error('Error processing command:', error);
-      newHistory.push({ type: 'error', content: `Error: ${error.message}` });
-      setHistory(newHistory);
+      const errorHistory = [...newHistory, { type: 'error', content: `Error: ${error.message}` }];
+      setHistory(errorHistory);
     } finally {
       setIsProcessing(false);
     }
     
-    // Add to command history
+    // Add to command history (only non-empty commands)
     if (cmd.trim()) {
       setCommandHistory([cmd, ...commandHistory]);
     }
@@ -211,7 +231,7 @@ const Terminal = () => {
           </button>
         </div>
         
-        {/* Controls moved to the right */}
+        {/* Controls moved to the right - removed the + button */}
         <div className="terminal-controls">
           <button 
             className="terminal-control-button" 
@@ -263,28 +283,27 @@ const Terminal = () => {
         )}
       </div>
       
-      {activeTab === 'terminal' ? (
-        <form onSubmit={handleSubmit} className="terminal-input-form">
-          <span className="terminal-prompt">$</span>
-          <input
-            ref={inputRef}
-            type="text"
-            className="terminal-input"
-            value={command}
-            onChange={(e) => setCommand(e.target.value)}
-            onKeyDown={handleKeyDown}
-            placeholder={isProcessing ? "Processing..." : "Enter command..."}
-            disabled={isProcessing}
-          />
-        </form>
-      ) : (
-        <div className="terminal-input-form">
-          <input
-            type="text"
-            className="terminal-input"
-            placeholder="Filter problems..."
-            disabled
-          />
+      {activeTab === 'terminal' && (
+        <div className="terminal-input-container">
+          <form onSubmit={handleSubmit} className="terminal-input-form">
+            <div className="terminal-prompt">
+              {activeWorkspace ? `${activeWorkspace.name}$ ` : `${currentDirectory}$ `}
+            </div>
+            <input
+              ref={inputRef}
+              type="text"
+              className="terminal-input"
+              value={command}
+              onChange={(e) => setCommand(e.target.value)}
+              onKeyDown={handleKeyDown}
+              placeholder={isProcessing ? "Processing..." : ""}
+              disabled={isProcessing}
+              spellCheck="false"
+              autoCapitalize="off"
+              autoComplete="off"
+              autoCorrect="off"
+            />
+          </form>
         </div>
       )}
     </div>

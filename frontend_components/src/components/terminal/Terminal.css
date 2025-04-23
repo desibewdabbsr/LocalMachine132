@@ -10,7 +10,7 @@
   height: 100%;
   background-color: #1B1B1B;
   color: #FFD700;
-  font-family: 'Manrope', sans-serif;
+  font-family: 'Courier New', monospace;
   border: 1px solid #FFD700;
 }
 
@@ -168,6 +168,8 @@
 /* Terminal tab styles */
 .terminal-output {
   padding: 10px;
+  font-family: 'Courier New', monospace;
+  line-height: 1.4;
 }
 
 .terminal-line {
@@ -193,19 +195,25 @@
   color: #4CAF50; /* Green for info */
 }
 
-.terminal-input-form {
-  padding: 0 10px;
-  background-color: #2E2E2E;
-  border-top: 1px solid #FFD700;
-  height: 28px;
+/* Terminal input container */
+.terminal-input-container {
   display: flex;
+  border-top: 1px solid rgba(255, 215, 0, 0.2);
+  background-color: #1B1B1B;
+  padding: 5px 10px;
+}
+
+.terminal-input-form {
+  display: flex;
+  width: 100%;
   align-items: center;
 }
 
 .terminal-prompt {
   color: #FF6F00;
-  margin-right: 5px;
+  margin-right: 8px;
   font-weight: bold;
+  white-space: nowrap;
 }
 
 .terminal-input {
@@ -213,10 +221,11 @@
   background-color: transparent;
   border: none;
   color: #FFD700;
-  font-family: 'Manrope', sans-serif;
+  font-family: 'Courier New', monospace;
   font-size: 14px;
+  padding: 0;
   outline: none;
-  height: 100%;
+  caret-color: #FFD700;
 }
 
 .terminal-input::placeholder {

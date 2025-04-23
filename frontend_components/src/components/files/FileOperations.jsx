@@ -11,7 +11,9 @@ const FileOperations = ({
   contextMenuPosition, 
   selectedItem, 
   onClose, 
-  onRefresh 
+  onRefresh,
+  onSetAsWorkspace,
+  activeWorkspace
 }) => {
   const [isRenaming, setIsRenaming] = useState(false);
   const [newName, setNewName] = useState('');
@@ -23,10 +25,7 @@ const FileOperations = ({
   const menuRef = useRef(null);
   const renameInputRef = useRef(null);
   const createInputRef = useRef(null);
-  // Add this function to the FileBrowser component:
-
-
-
+  
   // Set initial name when selected item changes
   useEffect(() => {
     if (selectedItem) {
@@ -84,10 +83,7 @@ const FileOperations = ({
     }
   };
   
-
-
-  // Update the handleCreate function in FileOperations.jsx
-
+  // Handle create
   const handleCreate = async (e) => {
     e.preventDefault();
     
@@ -155,9 +151,6 @@ const FileOperations = ({
       setError(`Delete failed: ${error.message}`);
     }
   };
-
-
-
   
   // Handle copy path
   const handleCopyPath = () => {
@@ -166,8 +159,25 @@ const FileOperations = ({
         onClose();
       })
       .catch(err => {
-                setError(`Copy failed: ${err.message}`);
+        setError(`Copy failed: ${err.message}`);
       });
+  };
+  
+  // Handle set as workspace
+  const handleSetAsWorkspace = () => {
+    if (selectedItem.type === 'folder') {
+      onSetAsWorkspace(selectedItem);
+    }
+  };
+  
+  // Check if this folder is the active workspace
+  const isActiveWorkspace = () => {
+    return (
+      activeWorkspace && 
+      selectedItem && 
+      selectedItem.type === 'folder' && 
+      selectedItem.path === activeWorkspace.path
+    );
   };
   
   if (!selectedItem || !contextMenuPosition) {
@@ -176,6 +186,7 @@ const FileOperations = ({
   
   const { x, y } = contextMenuPosition;
   const isFolder = selectedItem.type === 'folder';
+  const isActive = isActiveWorkspace();
   
   return (
     <div 
@@ -251,6 +262,15 @@ const FileOperations = ({
               <li onClick={() => { setIsCreating(true); setCreateType('folder'); }}>
                 New Folder
               </li>
+              {!isActive ? (
+                <li onClick={handleSetAsWorkspace}>
+                  Set as Active Workspace
+                </li>
+              ) : (
+                <li className="disabled">
+                  Current Active Workspace
+                </li>
+              )}
             </>
           )}
         </ul>

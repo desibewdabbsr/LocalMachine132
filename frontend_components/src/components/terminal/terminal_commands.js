@@ -1,5 +1,6 @@
 import apiService from '../../services/apiService';
 import appConfig from '../../config/appConfig';
+import codebaseSearchService from '../../services/codebaseSearchService';
 
 /**
  * Terminal Commands Library
@@ -77,6 +78,43 @@ const builtInCommands = {
       if (!args) return 'Usage: find <path> <options>';
       return await executeSystemCommand(`find ${args}`);
     }
+  },
+  cd: {
+    description: 'Change directory',
+    execute: async (args = '') => {
+      if (!args) return { output: 'Current directory: ~/.Repositories', newDirectory: '~/.Repositories' };
+      
+      // Handle cd .. (go up one level)
+      if (args === '..') {
+        return { output: 'Changed to parent directory', newDirectory: '~/.Repositories' };
+      }
+      
+      // Handle cd to a specific directory
+      return { 
+        output: `Changed to directory: ${args}`, 
+        newDirectory: `~/.Repositories/${args}`
+      };
+    }
+  },
+  ai: {
+    description: 'Ask AI a question',
+    execute: async (args = '') => {
+      if (!args) return 'Usage: ai <question>';
+      
+      // Detect current workspace context
+      const workspaceContext = await codebaseSearchService.findActiveWorkspace(args);
+      
+      // Process with workspace context
+      const response = await apiService.processMessageWithWorkspace(args, workspaceContext);
+      
+      return response.content || response.message || 'No response received';
+    }
+  },
+  ask: {
+    description: 'Alias for ai command',
+    execute: async (args = '') => {
+      return await builtInCommands.ai.execute(args);
+    }
   }
 };
 
@@ -124,36 +162,75 @@ export async function executeCommand(commandString) {
   
   const { command, args } = parseCommand(commandString);
   
+  // Detect current workspace context
+  const workspaceContext = await codebaseSearchService.findActiveWorkspace(commandString);
+  
   // Handle built-in commands
   if (command in builtInCommands) {
-    if (command === 'clear') {
-      return { type: 'clear' };
-    }
-    
     try {
-      const output = await builtInCommands[command].execute(args);
-      return { type: 'output', content: output };
+      // Special handling for AI commands to include workspace context
+      if (command === 'ai' || command === 'ask') {
+        const response = await apiService.processMessageWithWorkspace(args, workspaceContext);
+        return {
+          type: 'output',
+          content: response.content || response.message || 'No response received'
+        };
+      }
+      
+      // Execute other built-in commands
+      const result = await builtInCommands[command].execute(args);
+      
+      // Handle special case for clear command
+      if (command === 'clear') {
+        return { type: 'clear' };
+      }
+      
+      // Handle special case for cd command
+      if (command === 'cd' && result && result.newDirectory) {
+        return {
+          type: 'output',
+          content: result.output,
+          newDirectory: result.newDirectory
+        };
+      }
+      
+      return {
+        type: 'output',
+        content: result
+      };
     } catch (error) {
-      return { type: 'error', content: error.message };
+      return {
+        type: 'error',
+        content: error.message
+      };
     }
   }
   
   // Handle system commands
   try {
     const output = await executeSystemCommand(commandString);
-    return { type: 'output', content: output };
+    return {
+      type: 'output',
+      content: output
+    };
   } catch (error) {
-    return { type: 'error', content: error.message };
+    return {
+      type: 'error',
+      content: error.message
+    };
   }
 }
 
 /**
- * Get list of available commands
- * @returns {Array} Array of command objects with name and description
+ * Get available commands
+ * @returns {Object} Object containing command names and descriptions
  */
 export function getAvailableCommands() {
-  return Object.keys(builtInCommands).map(name => ({
-    name,
-    description: builtInCommands[name].description
-  }));
+  const commands = {};
+  
+  for (const [name, command] of Object.entries(builtInCommands)) {
+    commands[name] = command.description;
+  }
+  
+  return commands;
 }

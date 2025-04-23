@@ -3,6 +3,7 @@ import './FileBrowser.css';
 import FileTreeView from './FileTreeView';
 import FileOperations from './FileOperations';
 import apiService from '../../services/apiService';
+import { useWorkspace } from '../../context/WorkspaceContext';
 
 /**
  * FileBrowser Component
@@ -29,6 +30,13 @@ const FileBrowser = ({ instanceId }) => {
   const [showCreateProjectDialog, setShowCreateProjectDialog] = useState(false);
   const [newProjectName, setNewProjectName] = useState('');
   const [projectDescription, setProjectDescription] = useState('');
+
+  // Get workspace context
+  const { 
+    activeWorkspace, 
+    setActiveWorkspace, 
+    loadWorkspaces 
+  } = useWorkspace();
 
   // Load the project structure
   const loadFiles = async () => {
@@ -155,11 +163,18 @@ const FileBrowser = ({ instanceId }) => {
   // Handle refresh
   const handleRefresh = () => {
     loadFiles();
+    loadWorkspaces();
   };
 
   // Show create project dialog
   const handleCreateProject = () => {
     setShowCreateProjectDialog(true);
+  };
+
+  // Set a folder as the active workspace
+  const setFolderAsWorkspace = (folder) => {
+    setActiveWorkspace(folder);
+    closeContextMenu();
   };
 
   // Handle create project submission
@@ -182,6 +197,16 @@ const FileBrowser = ({ instanceId }) => {
         setNewProjectName('');
         setProjectDescription('');
         setShowCreateProjectDialog(false);
+        
+        // Set as active workspace if it's the first project
+        if (files.length === 0) {
+          const workspace = {
+            name: newProjectName,
+            path: result.project_dir,
+            type: 'folder'
+          };
+          setActiveWorkspace(workspace);
+        }
       } else {
         setError(`Failed to create project: ${result.error}`);
       }
@@ -213,6 +238,17 @@ const FileBrowser = ({ instanceId }) => {
           </button>
         </div>
       </div>
+      
+      {/* Active workspace indicator */}
+      {activeWorkspace && (
+        <div className="active-workspace">
+          <div className="active-workspace-header">
+            <span className="active-workspace-icon">📂</span>
+            <span className="active-workspace-name">{activeWorkspace.name}</span>
+          </div>
+          <div className="active-workspace-label">ACTIVE WORKSPACE</div>
+        </div>
+      )}
       
       <div className="explorer-content">
         {isLoading ? (
@@ -253,6 +289,7 @@ const FileBrowser = ({ instanceId }) => {
                 onContextMenu={handleContextMenu}
                 onRefresh={handleRefresh}
                 viewMode={viewMode}
+                activeWorkspace={activeWorkspace}
               />
             </div>
           </div>
@@ -266,6 +303,8 @@ const FileBrowser = ({ instanceId }) => {
           selectedItem={contextMenu.item}
           onClose={closeContextMenu}
           onRefresh={loadFiles}
+          onSetAsWorkspace={setFolderAsWorkspace}
+          activeWorkspace={activeWorkspace}
         />
       )}
       

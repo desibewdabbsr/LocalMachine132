@@ -586,6 +586,132 @@ class ApiService {
 
 
 
+
+  /**
+   * Process a message with workspace context
+   * @param {string} message - The message to process
+   * @param {Object} workspaceContext - Workspace context information
+   * @param {string} model - The model to use (default: 'auto')
+   * @returns {Promise<Object>} The response from the AI
+   */
+  async processMessageWithWorkspace(message, workspaceContext, model = 'auto') {
+    try {
+      console.log(`Processing message with model: ${model} in workspace: ${workspaceContext?.name}`);
+      
+      const response = await fetch(`${this.baseUrl}/process_with_workspace`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ 
+          message, 
+          model,
+          workspace_context: workspaceContext 
+        })
+      });
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      const data = await response.json();
+      console.log('Response received:', data);
+      
+      return {
+        content: data.content || data.message || JSON.stringify(data),
+        model: data.model || model,
+        workspace: data.workspace || workspaceContext
+      };
+    } catch (error) {
+      console.error(`Error processing message with ${model}:`, error);
+      
+      // Check if it's a network error
+      if (error.message.includes('Failed to fetch') || error.message.includes('NetworkError')) {
+        return { error: 'Network error. Please check if the server is running.' };
+      }
+      
+      return { error: error.message };
+    }
+  }
+
+
+
+
+
+
+  /**
+   * Set the active workspace
+   * @param {string} workspacePath - Path to the workspace
+   * @returns {Promise<Object>} Result of the operation
+   */
+  async setActiveWorkspace(workspacePath) {
+    try {
+      const response = await fetch(`${this.baseUrl}/workspace/set-active`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ path: workspacePath })
+      });
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      return await response.json();
+    } catch (error) {
+      console.error('Error setting active workspace:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Create a new workspace
+   * @param {string} name - Name of the workspace
+   * @param {string} description - Description of the workspace
+   * @returns {Promise<Object>} The created workspace
+   */
+  async createWorkspace(name, description = '') {
+    try {
+      const response = await fetch(`${this.baseUrl}/workspace/create`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ name, description })
+      });
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      return await response.json();
+    } catch (error) {
+      console.error('Error creating workspace:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Get the active workspace
+   * @returns {Promise<Object>} The active workspace
+   */
+  async getActiveWorkspace() {
+    try {
+      const response = await fetch(`${this.baseUrl}/workspace/active`);
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      return await response.json();
+    } catch (error) {
+      console.error('Error getting active workspace:', error);
+      throw error;
+    }
+  }
+
+
 }
 
 // Create a singleton instance

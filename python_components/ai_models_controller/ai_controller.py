@@ -233,3 +233,54 @@ class AIController:
         except Exception as e:
             logger.error(f"Error generating code: {e}", exc_info=True)
             return {"content": f"Error generating code: {str(e)}", "error": str(e)}
+        
+
+
+
+
+    # Add this method to the AIController class
+
+    async def process_message_with_workspace(self, message: str, workspace_context: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+        """Process a message with workspace context awareness"""
+        try:
+            if not self.initialized:
+                return {"content": "AI controller not initialized", "error": self.last_error}
+            
+            # Enhance the message with workspace context if provided
+            enhanced_message = message
+            if workspace_context:
+                workspace_name = workspace_context.get('name')
+                workspace_path = workspace_context.get('path')
+                
+                # Add workspace context to the message
+                enhanced_message = f"[Working in project: {workspace_name}, path: {workspace_path}]\n{message}"
+                
+                # Log the workspace context
+                logger.info(f"Processing message with workspace context: {workspace_name}")
+            
+            # Select the model to use
+            model = self._select_model(enhanced_message)
+            
+            # Process with the selected model
+            controller = self.controllers.get(model)
+            if not controller:
+                return {"content": f"Error: Selected model {model} is not available.", "model": "auto"}
+            
+            # Store the last used model
+            self.last_model = model
+            
+            # Process the message
+            response = await controller.process_message(enhanced_message)
+            
+            # Ensure model information is included in the response
+            if "model" not in response:
+                response["model"] = model
+                
+            # Add workspace context to the response
+            if workspace_context:
+                response["workspace"] = workspace_context
+                
+            return response
+        except Exception as e:
+            logger.error(f"Error processing message: {e}", exc_info=True)
+            return {"content": f"Error processing message: {str(e)}", "error": str(e)}
